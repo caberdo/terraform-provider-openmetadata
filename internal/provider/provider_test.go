@@ -1,0 +1,183 @@
+package provider
+
+import (
+	"context"
+	"strings"
+	"testing"
+	"time"
+
+	"github.com/hashicorp/terraform-plugin-framework/datasource"
+	"github.com/hashicorp/terraform-plugin-framework/provider"
+	"github.com/hashicorp/terraform-plugin-framework/resource"
+	"github.com/hashicorp/terraform-plugin-framework/types"
+
+	"github.com/caberdo/terraform-provider-openmetadata/internal/client"
+)
+
+func TestNewSetsMetadata(t *testing.T) {
+	p := New("1.2.3")()
+
+	var resp provider.MetadataResponse
+	p.Metadata(context.Background(), provider.MetadataRequest{}, &resp)
+
+	if resp.TypeName != "openmetadata" {
+		t.Fatalf("TypeName = %q, want %q", resp.TypeName, "openmetadata")
+	}
+	if resp.Version != "1.2.3" {
+		t.Fatalf("Version = %q, want %q", resp.Version, "1.2.3")
+	}
+}
+
+func TestProviderRegistersAllTypes(t *testing.T) {
+	ctx := context.Background()
+	p := New("dev")()
+
+	resources := p.Resources(ctx)
+	if len(resources) != 1 {
+		t.Fatalf("Resources() returned %d factories, want 1", len(resources))
+	}
+
+	var resourceMeta resource.MetadataResponse
+	resources[0]().Metadata(ctx, resource.MetadataRequest{ProviderTypeName: "openmetadata"}, &resourceMeta)
+	if resourceMeta.TypeName != "openmetadata_glossary" {
+		t.Fatalf("resource TypeName = %q, want %q", resourceMeta.TypeName, "openmetadata_glossary")
+	}
+
+	dataSources := p.DataSources(ctx)
+	if len(dataSources) != 1 {
+		t.Fatalf("DataSources() returned %d factories, want 1", len(dataSources))
+	}
+
+	var dataSourceMeta datasource.MetadataResponse
+	dataSources[0]().Metadata(ctx, datasource.MetadataRequest{ProviderTypeName: "openmetadata"}, &dataSourceMeta)
+	if dataSourceMeta.TypeName != "openmetadata_glossary" {
+		t.Fatalf("data source TypeName = %q, want %q", dataSourceMeta.TypeName, "openmetadata_glossary")
+	}
+}
+
+func TestClientConfig(t *testing.T) {
+	tests := []struct {
+		name       string
+		model      providerModel
+		env        map[string]string
+		wantErr    string
+		wantConfig client.Config
+	}{
+		{
+			name: "token authentication",
+			model: providerModel{
+				Host:  types.StringValue("https://om.example.com"),
+				Token: types.StringValue("jwt"),
+			},
+			wantConfig: client.Config{
+				Host:       "https://om.example.com",
+				Token:      "jwt",
+				APIVersion: client.DefaultAPIVersion,
+				RetryCount: client.DefaultRetryCount,
+				RetryWait:  client.DefaultRetryWait,
+			},
+		},
+		{
+			name: "login authentication",
+			model: providerModel{
+				Host:     types.StringValue("https://om.example.com/"),
+				Username: types.StringValue("admin@open-metadata.org"),
+				Password: types.StringValue("admin"),
+			},
+			wantConfig: client.Config{
+				Host:       "https://om.example.com/",
+				Username:   "admin@open-metadata.org",
+				Password:   "admin",
+				APIVersion: client.DefaultAPIVersion,
+				RetryCount: client.DefaultRetryCount,
+				RetryWait:  client.DefaultRetryWait,
+			},
+		},
+		{
+			name: "environment fallback",
+			env: map[string]string{
+				"OPENMETADATA_HOST":        "http://localhost:8585",
+				"OPENMETADATA_TOKEN":       "env-token",
+				"OPENMETADATA_RETRY_COUNT": "1",
+				"OPENMETADATA_RETRY_WAIT":  "5s",
+				"OPENMETADATA_API_VERSION": "v1",
+			},
+			wantConfig: client.Config{
+				Host:       "http://localhost:8585",
+				Token:      "env-token",
+				APIVersion: "v1",
+				RetryCount: 1,
+				RetryWait:  5 * time.Second,
+			},
+		},
+		{
+			name:    "missing host",
+			model:   providerModel{Token: types.StringValue("jwt")},
+			wantErr: "Missing OpenMetadata host",
+		},
+		{
+			name: "missing credentials",
+			model: providerModel{
+				Host:     types.StringValue("http://localhost:8585"),
+				Username: types.StringValue("admin@open-metadata.org"),
+			},
+			wantErr: "Missing OpenMetadata credentials",
+		},
+		{
+			name: "invalid retry count from environment",
+			model: providerModel{
+				Host:  types.StringValue("http://localhost:8585"),
+				Token: types.StringValue("jwt"),
+			},
+			env:     map[string]string{"OPENMETADATA_RETRY_COUNT": "many"},
+			wantErr: "Invalid retry_count",
+		},
+		{
+			name: "invalid retry wait",
+			model: providerModel{
+				Host:      types.StringValue("http://localhost:8585"),
+				Token:     types.StringValue("jwt"),
+				RetryWait: types.StringValue("soon"),
+			},
+			wantErr: "Invalid retry_wait",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			for _, key := range []string{
+				"OPENMETADATA_HOST",
+				"OPENMETADATA_TOKEN",
+				"OPENMETADATA_USERNAME",
+				"OPENMETADATA_PASSWORD",
+				"OPENMETADATA_API_VERSION",
+				"OPENMETADATA_RETRY_COUNT",
+				"OPENMETADATA_RETRY_WAIT",
+			} {
+				t.Setenv(key, "")
+			}
+			for key, value := range tt.env {
+				t.Setenv(key, value)
+			}
+
+			cfg, diags := clientConfig(tt.model)
+
+			if tt.wantErr != "" {
+				if !diags.HasError() {
+					t.Fatalf("expected an error containing %q, got none", tt.wantErr)
+				}
+				if detail := diags.Errors()[0].Summary(); !strings.Contains(detail, tt.wantErr) {
+					t.Fatalf("error summary = %q, want it to contain %q", detail, tt.wantErr)
+				}
+				return
+			}
+
+			if diags.HasError() {
+				t.Fatalf("unexpected diagnostics: %v", diags.Errors())
+			}
+			if cfg != tt.wantConfig {
+				t.Fatalf("config = %#v, want %#v", cfg, tt.wantConfig)
+			}
+		})
+	}
+}

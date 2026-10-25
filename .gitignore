@@ -1,0 +1,38 @@
+# Binaries and build output
+/bin/
+/dist/
+*.exe
+*.test
+*.out
+
+# Go workspace files
+go.work
+go.work.sum
+
+# Terraform working directories
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+*.tfplan
+crash.log
+crash.*.log
+
+# Terraform variable files that may hold credentials
+*.tfvars
+*.tfvars.json
+!examples/**/*.tfvars
+
+# Coverage output
+coverage.out
+coverage.html
+coverage-*.out
+
+# Local acceptance-test stack state
+docker/docker-volume/
+docker/.env
+
+# Editor and OS noise
+.DS_Store
+.idea/
+.vscode/
+*.swp

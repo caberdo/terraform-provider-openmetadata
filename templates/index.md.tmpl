@@ -1,0 +1,42 @@
+---
+page_title: "openmetadata Provider"
+description: |-
+  Manages OpenMetadata metadata: glossaries, classifications, tags, services, and the entities that hang off them.
+---
+
+# openmetadata Provider
+
+Manages OpenMetadata metadata. The provider talks to the OpenMetadata REST API
+through the official Go SDK (`github.com/open-metadata/openmetadata-sdk/openmetadata-go-client`)
+and targets OpenMetadata 1.13 and later.
+
+## Authentication
+
+The provider accepts either a bearer token or a username and password:
+
+- `token` is a JWT or a personal access token and takes precedence.
+- `username` and `password` are exchanged for a JWT through
+  `POST /api/v1/users/login` on first use. The token is then cached for the
+  lifetime of the provider process.
+
+Every attribute has an environment fallback, so credentials can stay out of
+version control:
+
+| Attribute | Environment variable |
+|-----------|---------------------|
+| `host` | `OPENMETADATA_HOST` |
+| `token` | `OPENMETADATA_TOKEN` |
+| `username` | `OPENMETADATA_USERNAME` |
+| `password` | `OPENMETADATA_PASSWORD` |
+| `api_version` | `OPENMETADATA_API_VERSION` |
+| `retry_count` | `OPENMETADATA_RETRY_COUNT` |
+| `retry_wait` | `OPENMETADATA_RETRY_WAIT` |
+
+The provider does not contact the server during `terraform validate` or
+`terraform plan`; the login exchange happens when the first API call is made.
+
+## Example Usage
+
+{{ tffile "examples/provider/provider.tf" }}
+
+{{ .SchemaMarkdown | trimspace }}
