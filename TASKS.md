@@ -12,7 +12,37 @@ scripts/create-issues.sh                      # dry run
 scripts/create-issues.sh --apply              # create everything
 scripts/create-issues.sh --only wave-1        # one wave
 scripts/create-issues.sh --entity tag --apply # one entity
+
+scripts/create-epics.sh                       # dry run
+scripts/create-epics.sh --apply               # 10 epics + sub-issue links
 ```
+
+Both scripts are idempotent and safe to re-run: they match on exact issue titles
+and skip what already exists, so a partial failure is fixed by running them
+again rather than cleaned up by hand.
+
+## GitHub tracking
+
+Each wave is an epic issue, and every entity issue is attached to its epic as a
+real GitHub **sub-issue** (via the `addSubIssue` mutation, since `gh` has no
+first-class command for it). Progress per wave is therefore visible in the
+issue UI instead of being inferred from labels.
+
+| Wave | Epic | Children |
+|------|------|----------|
+| 1 | #58 Taxonomy and governance | 6 |
+| 2 | #59 Database stack | 6 |
+| 3 | #60 BI stack | 4 |
+| 4 | #61 Pipelines and messaging | 4 |
+| 5 | #62 Platform services | 8 |
+| 6 | #63 Drives and documents | 6 |
+| 7 | #64 API assets | 3 |
+| 8 | #65 Data quality and operations | 8 |
+| 9 | #66 Access and organisation | 6 |
+| 10 | #67 AI and learning | 6 |
+
+The `wave-NN` labels remain on the children so issues can still be filtered
+without going through the epic.
 
 ## Current state
 
@@ -23,6 +53,7 @@ scripts/create-issues.sh --entity tag --apply # one entity
 | Docs generation from `examples/` + `templates/` | done |
 | Unit tests (`go test ./...`) | green |
 | Acceptance tests | CI only — no local Docker |
+| GitHub issues | 57 entity issues + 10 wave epics |
 | CI, GoReleaser, lint config, `README`, `LICENSE` | not yet written |
 
 **The reference slice is `glossary`.** Every other entity copies it. Read
