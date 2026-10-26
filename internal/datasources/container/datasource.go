@@ -120,11 +120,12 @@ func (d *containerDataSource) Read(ctx context.Context, req datasource.ReadReque
 	}
 
 	var found *ometa.Container
+	fields := "parent"
 	switch {
 	case !config.ID.IsNull() && config.ID.ValueString() != "":
-		found, err = sdk.Containers.GetByID(ctx, config.ID.ValueString(), nil)
+		found, err = sdk.Containers.GetByID(ctx, config.ID.ValueString(), &ometa.GetContainerByIDParams{Fields: &fields})
 	case !config.FullyQualifiedName.IsNull() && config.FullyQualifiedName.ValueString() != "":
-		found, err = sdk.Containers.GetByName(ctx, config.FullyQualifiedName.ValueString(), nil)
+		found, err = sdk.Containers.GetByName(ctx, config.FullyQualifiedName.ValueString(), &ometa.GetContainerByFQNParams{Fields: &fields})
 	default:
 		resp.Diagnostics.AddError(
 			"Missing container identifier",

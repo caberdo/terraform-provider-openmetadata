@@ -281,16 +281,19 @@ func (r *containerResource) ImportState(ctx context.Context, req resource.Import
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
 
-// lookupContainer resolves a UUID or a fully qualified name.
+// lookupContainer resolves a UUID or a fully qualified name. The parent is a
+// relationship rather than a stored field, so it must be requested explicitly;
+// without it an import would drop the parent from state.
 func lookupContainer(ctx context.Context, sdk *ometa.Client, reference string) (*ometa.Container, error) {
-	found, err := sdk.Containers.GetByID(ctx, reference, nil)
+	fields := "parent"
+	found, err := sdk.Containers.GetByID(ctx, reference, &ometa.GetContainerByIDParams{Fields: &fields})
 	if err == nil {
 		return found, nil
 	}
 	if !client.NotFound(err) && !client.BadRequest(err) {
 		return nil, err
 	}
-	return sdk.Containers.GetByName(ctx, reference, nil)
+	return sdk.Containers.GetByName(ctx, reference, &ometa.GetContainerByFQNParams{Fields: &fields})
 }
 
 // patchOps builds the JSON Patch document for the fields this resource owns.
