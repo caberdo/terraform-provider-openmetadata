@@ -33,19 +33,23 @@ func TestProviderRegistersAllTypes(t *testing.T) {
 	p := New("dev")()
 
 	want := map[string]bool{
-		"openmetadata_classification":   false,
-		"openmetadata_data_product":     false,
-		"openmetadata_database":         false,
-		"openmetadata_database_schema":  false,
-		"openmetadata_database_service": false,
-		"openmetadata_domain":           false,
-		"openmetadata_glossary":         false,
-		"openmetadata_glossary_term":    false,
-		"openmetadata_metric":           false,
-		"openmetadata_query":            false,
-		"openmetadata_stored_procedure": false,
-		"openmetadata_table":            false,
-		"openmetadata_tag":              false,
+		"openmetadata_chart":                false,
+		"openmetadata_classification":       false,
+		"openmetadata_dashboard":            false,
+		"openmetadata_dashboard_data_model": false,
+		"openmetadata_dashboard_service":    false,
+		"openmetadata_data_product":         false,
+		"openmetadata_database":             false,
+		"openmetadata_database_schema":      false,
+		"openmetadata_database_service":     false,
+		"openmetadata_domain":               false,
+		"openmetadata_glossary":             false,
+		"openmetadata_glossary_term":        false,
+		"openmetadata_metric":               false,
+		"openmetadata_query":                false,
+		"openmetadata_stored_procedure":     false,
+		"openmetadata_table":                false,
+		"openmetadata_tag":                  false,
 	}
 
 	resources := p.Resources(ctx)
