@@ -17,7 +17,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 
 	"github.com/caberdo/terraform-provider-openmetadata/internal/client"
+	chartdatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/chart"
 	classificationdatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/classification"
+	dashboarddatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/dashboard"
+	dashboarddatamodeldatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/dashboard_data_model"
+	dashboardservicedatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/dashboard_service"
 	dataproductdatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/data_product"
 	domaindatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/domain"
 	glossarydatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/glossary"
@@ -25,7 +29,11 @@ import (
 	metricdatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/metric"
 	tagdatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/tag"
 	"github.com/caberdo/terraform-provider-openmetadata/internal/providerdata"
+	chartresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/chart"
 	classificationresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/classification"
+	dashboardresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/dashboard"
+	dashboarddatamodelresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/dashboard_data_model"
+	dashboardserviceresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/dashboard_service"
 	dataproductresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/data_product"
 	domainresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/domain"
 	glossaryresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/glossary"
@@ -155,7 +163,11 @@ func (p *OpenMetadataProvider) Configure(ctx context.Context, req provider.Confi
 // so parallel contributors insert in predictable places.
 func (p *OpenMetadataProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
+		chartresource.NewResource,
 		classificationresource.NewResource,
+		dashboardresource.NewResource,
+		dashboarddatamodelresource.NewResource,
+		dashboardserviceresource.NewResource,
 		dataproductresource.NewResource,
 		domainresource.NewResource,
 		glossaryresource.NewResource,
@@ -168,7 +180,11 @@ func (p *OpenMetadataProvider) Resources(_ context.Context) []func() resource.Re
 // DataSources returns the data source factories, sorted alphabetically.
 func (p *OpenMetadataProvider) DataSources(_ context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
+		chartdatasource.NewDataSource,
 		classificationdatasource.NewDataSource,
+		dashboarddatasource.NewDataSource,
+		dashboarddatamodeldatasource.NewDataSource,
+		dashboardservicedatasource.NewDataSource,
 		dataproductdatasource.NewDataSource,
 		domaindatasource.NewDataSource,
 		glossarydatasource.NewDataSource,

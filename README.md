@@ -10,9 +10,10 @@ mutation is a create, patch or delete, and attributes the server cannot return
 are preserved rather than zeroed.
 
 > **Status:** early development. The module, tooling, CI and acceptance stack are
-> in place. The glossary reference slice and the wave 1 taxonomy entities
+> in place. The glossary reference slice, the wave 1 taxonomy entities
 > (`classification`, `tag`, `glossary_term`, `domain`, `data_product`, `metric`)
-> are implemented. The remaining entities are tracked in
+> and the wave 3 BI entities (`chart`, `dashboard`, `dashboard_data_model`,
+> `dashboard_service`) are implemented. The remaining entities are tracked in
 > [TASKS.md](TASKS.md) and in the wave epics on GitHub.
 
 ## Requirements
