@@ -23,10 +23,16 @@ import (
 	dashboarddatamodeldatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/dashboard_data_model"
 	dashboardservicedatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/dashboard_service"
 	dataproductdatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/data_product"
+	databasedatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/database"
+	databaseschemadatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/database_schema"
+	databaseservicedatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/database_service"
 	domaindatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/domain"
 	glossarydatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/glossary"
 	glossarytermdatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/glossary_term"
 	metricdatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/metric"
+	querydatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/query"
+	storedproceduredatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/stored_procedure"
+	tabledatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/table"
 	tagdatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/tag"
 	"github.com/caberdo/terraform-provider-openmetadata/internal/providerdata"
 	chartresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/chart"
@@ -35,10 +41,16 @@ import (
 	dashboarddatamodelresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/dashboard_data_model"
 	dashboardserviceresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/dashboard_service"
 	dataproductresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/data_product"
+	databaseresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/database"
+	databaseschemaresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/database_schema"
+	databaseserviceresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/database_service"
 	domainresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/domain"
 	glossaryresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/glossary"
 	glossarytermresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/glossary_term"
 	metricresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/metric"
+	queryresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/query"
+	storedprocedureresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/stored_procedure"
+	tableresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/table"
 	tagresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/tag"
 )
 
@@ -169,10 +181,16 @@ func (p *OpenMetadataProvider) Resources(_ context.Context) []func() resource.Re
 		dashboarddatamodelresource.NewResource,
 		dashboardserviceresource.NewResource,
 		dataproductresource.NewResource,
+		databaseresource.NewResource,
+		databaseschemaresource.NewResource,
+		databaseserviceresource.NewResource,
 		domainresource.NewResource,
 		glossaryresource.NewResource,
 		glossarytermresource.NewResource,
 		metricresource.NewResource,
+		queryresource.NewResource,
+		storedprocedureresource.NewResource,
+		tableresource.NewResource,
 		tagresource.NewResource,
 	}
 }
@@ -186,10 +204,16 @@ func (p *OpenMetadataProvider) DataSources(_ context.Context) []func() datasourc
 		dashboarddatamodeldatasource.NewDataSource,
 		dashboardservicedatasource.NewDataSource,
 		dataproductdatasource.NewDataSource,
+		databasedatasource.NewDataSource,
+		databaseschemadatasource.NewDataSource,
+		databaseservicedatasource.NewDataSource,
 		domaindatasource.NewDataSource,
 		glossarydatasource.NewDataSource,
 		glossarytermdatasource.NewDataSource,
 		metricdatasource.NewDataSource,
+		querydatasource.NewDataSource,
+		storedproceduredatasource.NewDataSource,
+		tabledatasource.NewDataSource,
 		tagdatasource.NewDataSource,
 	}
 }

@@ -12,6 +12,12 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   data source, the reference slice for every other entity.
 - Wave 1 taxonomy and governance: `classification`, `tag`, `glossary_term`,
   `domain`, `data_product` and `metric` resources and data sources.
+- Wave 2 database stack: `database_service`, `database`, `database_schema`,
+  `table`, `stored_procedure` and `query` resources and data sources, including
+  nested fully-qualified-name handling from service down to columns.
+- `openmetadata_query` uses the REST `DELETE /api/v1/queries/{id}` endpoint via
+  the raw delete helper because the SDK exposes no `Delete`; destroy is a soft
+  delete on the server.
 - Wave 3 BI stack: `chart`, `dashboard`, `dashboard_data_model` and
   `dashboard_service` resources and data sources, including dashboard/chart
   relationships, data model columns and JSON connector configuration.
