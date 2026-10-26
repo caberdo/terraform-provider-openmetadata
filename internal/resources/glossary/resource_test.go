@@ -186,17 +186,14 @@ func TestPatchOps(t *testing.T) {
 			wantValue: "after",
 		},
 		{
-			name: "mutually exclusive changed",
+			name: "mutually exclusive cannot be patched",
 			plan: glossaryModel{
 				DisplayName:       base.DisplayName,
 				Description:       base.Description,
 				MutuallyExclusive: types.BoolValue(true),
 			},
-			state:     base,
-			wantOps:   1,
-			wantPath:  "/mutuallyExclusive",
-			wantOp:    "add",
-			wantValue: true,
+			state:   base,
+			wantOps: 0,
 		},
 	}
 

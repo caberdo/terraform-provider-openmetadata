@@ -1,0 +1,136 @@
+# Acceptance-test stack: a real OpenMetadata server with the database and search
+# engine it needs. The server version is pinned in
+# .github/openmetadata-version.txt; the Makefile and CI export it as
+# OPENMETADATA_VERSION so image tags and the expected /system/version agree.
+#
+# Runs in the compose network, against the pinned server. Docker Compose v2 is
+# required for the health- and completion-based dependencies; Podman users can
+# point Docker Compose at the Podman socket.
+#
+#   make testacc-docker        # run the suite
+#   make testacc-down          # remove the stack and its volumes
+name: terraform-provider-openmetadata
+
+x-openmetadata-environment: &openmetadata-environment
+  OPENMETADATA_CLUSTER_NAME: openmetadata
+  SERVER_PORT: "8585"
+  SERVER_ADMIN_PORT: "8586"
+  LOG_LEVEL: INFO
+  OPENMETADATA_HEAP_OPTS: "-Xmx1G -Xms1G"
+  # Database: the getcollate postgresql image creates openmetadata_db and the
+  # openmetadata_user role, so no init scripts are needed here.
+  DB_DRIVER_CLASS: org.postgresql.Driver
+  DB_SCHEME: postgresql
+  DB_PARAMS: allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC
+  DB_HOST: postgresql
+  DB_PORT: "5432"
+  DB_USER: openmetadata_user
+  DB_USER_PASSWORD: openmetadata_password
+  OM_DATABASE: openmetadata_db
+  # Search: single-node Elasticsearch with the security module disabled.
+  SEARCH_TYPE: elasticsearch
+  ELASTICSEARCH_HOST: elasticsearch
+  ELASTICSEARCH_PORT: "9200"
+  ELASTICSEARCH_SCHEME: http
+  # No Airflow/ingestion service is part of this stack; metadata CRUD does not
+  # need one.
+  PIPELINE_SERVICE_CLIENT_ENABLED: "false"
+  # Local basic auth. The image seeds admin@open-metadata.org / admin.
+  AUTHENTICATION_PROVIDER: basic
+  AUTHORIZER_ADMIN_PRINCIPALS: "[admin]"
+  AUTHORIZER_ALLOWED_REGISTRATION_DOMAIN: '["all"]'
+  AUTHORIZER_PRINCIPAL_DOMAIN: open-metadata.org
+
+services:
+  postgresql:
+    # The official OpenMetadata postgres image is just postgres:15 plus the
+    # init script from test/acceptance/postgres/init.sql, so the plain image is
+    # used here: one less registry to depend on and the schema setup is visible.
+    image: postgres:15
+    command: "--work_mem=10MB"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./test/acceptance/postgres/init.sql:/docker-entrypoint-initdb.d/10-openmetadata.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "psql -U postgres -tAc 'select 1' -d openmetadata_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:9.3.0
+    environment:
+      discovery.type: single-node
+      ES_JAVA_OPTS: "-Xms1g -Xmx1g"
+      xpack.security.enabled: "false"
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:9200/_cluster/health | grep -qE '\"status\":\"(green|yellow)\"'"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
+
+  # One-shot schema migration. The server refuses to start until this exits 0.
+  migrate:
+    image: docker.getcollate.io/openmetadata/server:${OPENMETADATA_VERSION:-1.13.6}
+    command: ["./bootstrap/openmetadata-ops.sh", "migrate"]
+    environment: *openmetadata-environment
+    depends_on:
+      postgresql:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+
+  openmetadata-server:
+    image: docker.getcollate.io/openmetadata/server:${OPENMETADATA_VERSION:-1.13.6}
+    environment: *openmetadata-environment
+    ports:
+      - "8585:8585"
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8586/healthcheck"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 60s
+    depends_on:
+      postgresql:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+
+  test:
+    image: golang:1.25.8
+    working_dir: /app
+    volumes:
+      - .:/app
+      - go-modules:/go/pkg/mod
+    environment:
+      TF_ACC: "1"
+      OPENMETADATA_HOST: http://openmetadata-server:8585
+      OPENMETADATA_USERNAME: admin@open-metadata.org
+      OPENMETADATA_PASSWORD: admin
+      OPENMETADATA_EXPECT_VERSION: ${OPENMETADATA_VERSION:-1.13.6}
+    command:
+      - bash
+      - -c
+      - |
+        set -e
+        go mod download
+        go mod verify
+        go test -v -count=1 -timeout 30m ./internal/...
+    depends_on:
+      openmetadata-server:
+        condition: service_healthy
+
+volumes:
+  postgres-data:
+  elasticsearch-data:
+  go-modules:

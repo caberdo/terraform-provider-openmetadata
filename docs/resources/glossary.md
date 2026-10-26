@@ -32,7 +32,7 @@ resource "openmetadata_glossary" "finance" {
 
 - `description` (String) Markdown description of the glossary.
 - `display_name` (String) Human-readable name shown in the OpenMetadata UI.
-- `mutually_exclusive` (Boolean) When true, a glossary term may belong to only one glossary under the same parent.
+- `mutually_exclusive` (Boolean) When true, a glossary term may belong to only one glossary under the same parent. The server fixes this at creation, so changing it replaces the glossary.
 
 ### Read-Only
 

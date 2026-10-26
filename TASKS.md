@@ -52,9 +52,9 @@ without going through the epic.
 | `openmetadata_glossary` resource + data source (reference slice) | done |
 | Docs generation from `examples/` + `templates/` | done |
 | Unit tests (`go test ./...`) | green |
-| Acceptance tests | CI only — no local Docker |
+| Acceptance tests | `make testacc-docker` against the compose stack; also run in CI |
 | GitHub issues | 57 entity issues + 10 wave epics |
-| CI, GoReleaser, lint config, `README`, `LICENSE` | not yet written |
+| CI, GoReleaser, lint config, `README`, `LICENSE`, `AGENTS.md` | done |
 
 **The reference slice is `glossary`.** Every other entity copies it. Read
 `internal/resources/glossary/resource.go` and

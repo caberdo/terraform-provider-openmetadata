@@ -3,6 +3,7 @@ package client
 import (
 	"bytes"
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -23,8 +24,11 @@ func (c *Client) login(ctx context.Context) (string, error) {
 	}
 
 	payload, err := json.Marshal(ometa.LoginRequest{
-		Email:    c.cfg.Username,
-		Password: c.cfg.Password,
+		Email: c.cfg.Username,
+		// The login endpoint rejects a plaintext password with HTTP 400
+		// ("Password needs to be encoded in Base-64.") and decodes it before
+		// authentication.
+		Password: base64.StdEncoding.EncodeToString([]byte(c.cfg.Password)),
 	})
 	if err != nil {
 		return "", fmt.Errorf("openmetadata: failed to encode login request: %w", err)

@@ -41,7 +41,7 @@ func TestLoginResponseShapes(t *testing.T) {
 				if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
 					t.Errorf("decode login body: %v", err)
 				}
-				if payload.Email != "admin@open-metadata.org" || payload.Password != "admin" {
+				if payload.Email != "admin@open-metadata.org" || payload.Password != "YWRtaW4=" {
 					t.Errorf("login payload = %#v", payload)
 				}
 

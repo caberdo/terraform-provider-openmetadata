@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	rschema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
@@ -78,8 +79,11 @@ func (r *glossaryResource) Schema(_ context.Context, _ resource.SchemaRequest, r
 			"mutually_exclusive": rschema.BoolAttribute{
 				Optional:    true,
 				Computed:    true,
-				Description: "When true, a glossary term may belong to only one glossary under the same parent.",
+				Description: "When true, a glossary term may belong to only one glossary under the same parent. The server fixes this at creation, so changing it replaces the glossary.",
 				Default:     booldefault.StaticBool(false),
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.RequiresReplace(),
+				},
 			},
 			"version": rschema.Float64Attribute{
 				Computed:    true,
@@ -290,13 +294,8 @@ func patchOps(plan, state glossaryModel) []ometa.JSONPatchOp {
 		})
 	}
 
-	if !plan.MutuallyExclusive.Equal(state.MutuallyExclusive) {
-		ops = append(ops, ometa.JSONPatchOp{
-			Op:    "add",
-			Path:  "/mutuallyExclusive",
-			Value: plan.MutuallyExclusive.ValueBool(),
-		})
-	}
+	// mutually_exclusive is not patchable: GlossaryRepository forces the
+	// original value on update. The attribute carries RequiresReplace instead.
 
 	return ops
 }
