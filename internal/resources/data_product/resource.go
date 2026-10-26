@@ -267,16 +267,18 @@ func (r *dataProductResource) ImportState(ctx context.Context, req resource.Impo
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
 
-// lookupDataProduct resolves a UUID or a fully qualified name.
+// lookupDataProduct resolves a UUID or a fully qualified name. Domain
+// references are requested explicitly because the default read omits them.
 func lookupDataProduct(ctx context.Context, sdk *ometa.Client, reference string) (*ometa.DataProduct, error) {
-	found, err := sdk.DataProducts.GetByID(ctx, reference, nil)
+	fields := "domains"
+	found, err := sdk.DataProducts.GetByID(ctx, reference, &ometa.GetDataProductByIDParams{Fields: &fields})
 	if err == nil {
 		return found, nil
 	}
 	if !client.NotFound(err) && !client.BadRequest(err) {
 		return nil, err
 	}
-	return sdk.DataProducts.GetByName(ctx, reference, nil)
+	return sdk.DataProducts.GetByName(ctx, reference, &ometa.GetDataProductByFQNParams{Fields: &fields})
 }
 
 // patchOps builds the JSON Patch document for the fields this resource owns.

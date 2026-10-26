@@ -118,11 +118,12 @@ func (d *dataProductDataSource) Read(ctx context.Context, req datasource.ReadReq
 	}
 
 	var found *ometa.DataProduct
+	fields := "domains"
 	switch {
 	case !config.ID.IsNull() && config.ID.ValueString() != "":
-		found, err = sdk.DataProducts.GetByID(ctx, config.ID.ValueString(), nil)
+		found, err = sdk.DataProducts.GetByID(ctx, config.ID.ValueString(), &ometa.GetDataProductByIDParams{Fields: &fields})
 	case !config.FullyQualifiedName.IsNull() && config.FullyQualifiedName.ValueString() != "":
-		found, err = sdk.DataProducts.GetByName(ctx, config.FullyQualifiedName.ValueString(), nil)
+		found, err = sdk.DataProducts.GetByName(ctx, config.FullyQualifiedName.ValueString(), &ometa.GetDataProductByFQNParams{Fields: &fields})
 	default:
 		resp.Diagnostics.AddError(
 			"Missing data product identifier",

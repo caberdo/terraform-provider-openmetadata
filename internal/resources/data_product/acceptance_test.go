@@ -43,9 +43,13 @@ func TestAccDataProduct_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccDataProductConfigTwoDomains(domainName, secondDomainName, name),
+				// OpenMetadata's default entity rule allows one domain per
+				// data product, so exercise the patch path by switching to a
+				// different domain rather than adding a second one.
+				Config: testAccDataProductConfigSecondDomain(domainName, secondDomainName, name),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceName, "domains.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "domains.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "domains.0", secondDomainName),
 				),
 			},
 			{
@@ -94,7 +98,7 @@ resource "openmetadata_data_product" "test" {
 `, domainName, name, description)
 }
 
-func testAccDataProductConfigTwoDomains(domainName, secondDomainName, name string) string {
+func testAccDataProductConfigSecondDomain(domainName, secondDomainName, name string) string {
 	return fmt.Sprintf(`
 resource "openmetadata_domain" "parent" {
   name        = %q
@@ -110,10 +114,7 @@ resource "openmetadata_data_product" "test" {
   name         = %q
   display_name = "Acceptance Data Product"
   description  = "Updated description"
-  domains = [
-    openmetadata_domain.parent.fully_qualified_name,
-    openmetadata_domain.second.fully_qualified_name,
-  ]
+  domains      = [openmetadata_domain.second.fully_qualified_name]
 }
 `, domainName, secondDomainName, name)
 }
