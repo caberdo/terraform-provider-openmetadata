@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"strings"
 	"sync"
 	"time"
@@ -71,8 +72,9 @@ type Client struct {
 	httpClient *http.Client
 	baseURL    string
 
-	mu  sync.Mutex
-	sdk *ometa.Client
+	mu    sync.Mutex
+	sdk   *ometa.Client
+	token string
 }
 
 // New validates cfg and returns a client that authenticates on first use.
@@ -122,13 +124,9 @@ func (c *Client) SDK(ctx context.Context) (*ometa.Client, error) {
 		return c.sdk, nil
 	}
 
-	token := c.cfg.Token
-	if token == "" {
-		var err error
-		token, err = c.login(ctx)
-		if err != nil {
-			return nil, err
-		}
+	token, err := c.tokenLocked(ctx)
+	if err != nil {
+		return nil, err
 	}
 
 	c.sdk = ometa.NewClient(
@@ -140,6 +138,70 @@ func (c *Client) SDK(ctx context.Context) (*ometa.Client, error) {
 	)
 
 	return c.sdk, nil
+}
+
+// Delete sends DELETE /api/{version}/{path} with optional query parameters.
+// The SDK omits Delete for a few services (domains and data products), so
+// those resources use this narrow helper instead of a no-op destroy.
+func (c *Client) Delete(ctx context.Context, path string, params url.Values) error {
+	token, err := c.authToken(ctx)
+	if err != nil {
+		return err
+	}
+
+	endpoint := c.baseURL + "/" + strings.TrimLeft(path, "/")
+	if len(params) > 0 {
+		endpoint += "?" + params.Encode()
+	}
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodDelete, endpoint, nil)
+	if err != nil {
+		return fmt.Errorf("openmetadata: failed to build delete request: %w", err)
+	}
+	req.Header.Set("Accept", "application/json")
+	req.Header.Set("Authorization", "Bearer "+token)
+
+	res, err := c.httpClient.Do(req)
+	if err != nil {
+		return fmt.Errorf("openmetadata: delete request failed: %w", err)
+	}
+	defer func() { _ = res.Body.Close() }()
+
+	raw, err := readLimited(res)
+	if err != nil {
+		return err
+	}
+	if res.StatusCode >= http.StatusBadRequest {
+		return newAPIError(res.StatusCode, raw)
+	}
+
+	return nil
+}
+
+// authToken returns the configured token or the cached login token.
+func (c *Client) authToken(ctx context.Context) (string, error) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	return c.tokenLocked(ctx)
+}
+
+// tokenLocked implements authToken for callers already holding the mutex.
+func (c *Client) tokenLocked(ctx context.Context) (string, error) {
+	if c.token != "" {
+		return c.token, nil
+	}
+
+	token := c.cfg.Token
+	if token == "" {
+		var err error
+		token, err = c.login(ctx)
+		if err != nil {
+			return "", err
+		}
+	}
+
+	c.token = token
+	return token, nil
 }
 
 // Version probes GET /api/v{version}/system/version. Acceptance prechecks use
