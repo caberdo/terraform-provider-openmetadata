@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"strings"
 	"sync/atomic"
 	"testing"
@@ -269,6 +270,87 @@ func TestErrorClassification(t *testing.T) {
 	}
 	if _, ok := StatusCode(context.DeadlineExceeded); ok {
 		t.Fatal("StatusCode() reported a status for a non-API error")
+	}
+}
+
+func TestDeleteAuthenticatesAndSendsQuery(t *testing.T) {
+	var loginCalls atomic.Int32
+	var gotMethod, gotPath, gotQuery, gotAuth string
+
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case "/api/v1/users/login":
+			loginCalls.Add(1)
+			_, _ = w.Write([]byte(`"jwt-token"`))
+		case "/api/v1/domains/abc":
+			gotMethod = r.Method
+			gotPath = r.URL.Path
+			gotQuery = r.URL.RawQuery
+			gotAuth = r.Header.Get("Authorization")
+			w.WriteHeader(http.StatusNoContent)
+		default:
+			http.NotFound(w, r)
+		}
+	}))
+	defer srv.Close()
+
+	c, err := New(Config{
+		Host:       srv.URL,
+		Username:   "admin@open-metadata.org",
+		Password:   "admin",
+		RetryCount: 0,
+		HTTPClient: srv.Client(),
+	})
+	if err != nil {
+		t.Fatalf("New() error = %v", err)
+	}
+
+	params := url.Values{"recursive": {"true"}, "hardDelete": {"true"}}
+	if err := c.Delete(context.Background(), "domains/abc", params); err != nil {
+		t.Fatalf("Delete() error = %v", err)
+	}
+	if err := c.Delete(context.Background(), "domains/abc", params); err != nil {
+		t.Fatalf("second Delete() error = %v", err)
+	}
+
+	if gotMethod != http.MethodDelete {
+		t.Fatalf("method = %q, want DELETE", gotMethod)
+	}
+	if gotPath != "/api/v1/domains/abc" {
+		t.Fatalf("path = %q", gotPath)
+	}
+	if gotQuery != "hardDelete=true&recursive=true" {
+		t.Fatalf("query = %q", gotQuery)
+	}
+	if gotAuth != "Bearer jwt-token" {
+		t.Fatalf("Authorization = %q", gotAuth)
+	}
+	if calls := loginCalls.Load(); calls != 1 {
+		t.Fatalf("login calls = %d, want 1", calls)
+	}
+}
+
+func TestDeleteClassifiesNotFound(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusNotFound)
+		_, _ = w.Write([]byte(`{"code":404,"message":"domain not found"}`))
+	}))
+	defer srv.Close()
+
+	c, err := New(Config{Host: srv.URL, Token: "t", HTTPClient: srv.Client(), RetryCount: 0})
+	if err != nil {
+		t.Fatalf("New() error = %v", err)
+	}
+
+	err = c.Delete(context.Background(), "domains/missing", nil)
+	if err == nil {
+		t.Fatal("Delete() error = nil, want a 404")
+	}
+	if !NotFound(err) {
+		t.Fatalf("NotFound() = false for %v", err)
+	}
+	if detail := ErrorDetail(err); !strings.Contains(detail, "domain not found") {
+		t.Fatalf("ErrorDetail() = %q", detail)
 	}
 }
 

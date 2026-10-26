@@ -10,6 +10,11 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - Module, provider configuration and the `openmetadata_glossary` resource and
   data source, the reference slice for every other entity.
+- Wave 1 taxonomy and governance: `classification`, `tag`, `glossary_term`,
+  `domain`, `data_product` and `metric` resources and data sources.
+- A narrow raw `DELETE` helper in `internal/client` for domains and data
+  products. The Go SDK exposes no `Delete` for those services even though the
+  REST API supports a permanent delete.
 - Build tooling: `GNUmakefile`, `.golangci.yml` and generated documentation from
   `examples/` and `templates/`.
 - CI: lint, race-enabled unit tests, cross-platform build, generated-doc drift,

@@ -17,9 +17,21 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 
 	"github.com/caberdo/terraform-provider-openmetadata/internal/client"
+	classificationdatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/classification"
+	dataproductdatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/data_product"
+	domaindatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/domain"
 	glossarydatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/glossary"
+	glossarytermdatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/glossary_term"
+	metricdatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/metric"
+	tagdatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/tag"
 	"github.com/caberdo/terraform-provider-openmetadata/internal/providerdata"
+	classificationresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/classification"
+	dataproductresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/data_product"
+	domainresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/domain"
 	glossaryresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/glossary"
+	glossarytermresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/glossary_term"
+	metricresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/metric"
+	tagresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/tag"
 )
 
 // providerTypeName is the Terraform provider type name: the prefix of every
@@ -143,14 +155,26 @@ func (p *OpenMetadataProvider) Configure(ctx context.Context, req provider.Confi
 // so parallel contributors insert in predictable places.
 func (p *OpenMetadataProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
+		classificationresource.NewResource,
+		dataproductresource.NewResource,
+		domainresource.NewResource,
 		glossaryresource.NewResource,
+		glossarytermresource.NewResource,
+		metricresource.NewResource,
+		tagresource.NewResource,
 	}
 }
 
 // DataSources returns the data source factories, sorted alphabetically.
 func (p *OpenMetadataProvider) DataSources(_ context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
+		classificationdatasource.NewDataSource,
+		dataproductdatasource.NewDataSource,
+		domaindatasource.NewDataSource,
 		glossarydatasource.NewDataSource,
+		glossarytermdatasource.NewDataSource,
+		metricdatasource.NewDataSource,
+		tagdatasource.NewDataSource,
 	}
 }
 

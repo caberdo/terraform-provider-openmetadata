@@ -32,26 +32,42 @@ func TestProviderRegistersAllTypes(t *testing.T) {
 	ctx := context.Background()
 	p := New("dev")()
 
-	resources := p.Resources(ctx)
-	if len(resources) != 1 {
-		t.Fatalf("Resources() returned %d factories, want 1", len(resources))
+	want := map[string]bool{
+		"openmetadata_classification": false,
+		"openmetadata_data_product":   false,
+		"openmetadata_domain":         false,
+		"openmetadata_glossary":       false,
+		"openmetadata_glossary_term":  false,
+		"openmetadata_metric":         false,
+		"openmetadata_tag":            false,
 	}
 
-	var resourceMeta resource.MetadataResponse
-	resources[0]().Metadata(ctx, resource.MetadataRequest{ProviderTypeName: "openmetadata"}, &resourceMeta)
-	if resourceMeta.TypeName != "openmetadata_glossary" {
-		t.Fatalf("resource TypeName = %q, want %q", resourceMeta.TypeName, "openmetadata_glossary")
+	resources := p.Resources(ctx)
+	if len(resources) != len(want) {
+		t.Fatalf("Resources() returned %d factories, want %d", len(resources), len(want))
+	}
+	for _, factory := range resources {
+		var resp resource.MetadataResponse
+		factory().Metadata(ctx, resource.MetadataRequest{ProviderTypeName: "openmetadata"}, &resp)
+		if _, ok := want[resp.TypeName]; !ok {
+			t.Fatalf("unexpected resource %q", resp.TypeName)
+		}
+		want[resp.TypeName] = true
 	}
 
 	dataSources := p.DataSources(ctx)
-	if len(dataSources) != 1 {
-		t.Fatalf("DataSources() returned %d factories, want 1", len(dataSources))
+	if len(dataSources) != len(want) {
+		t.Fatalf("DataSources() returned %d factories, want %d", len(dataSources), len(want))
 	}
-
-	var dataSourceMeta datasource.MetadataResponse
-	dataSources[0]().Metadata(ctx, datasource.MetadataRequest{ProviderTypeName: "openmetadata"}, &dataSourceMeta)
-	if dataSourceMeta.TypeName != "openmetadata_glossary" {
-		t.Fatalf("data source TypeName = %q, want %q", dataSourceMeta.TypeName, "openmetadata_glossary")
+	for _, factory := range dataSources {
+		var resp datasource.MetadataResponse
+		factory().Metadata(ctx, datasource.MetadataRequest{ProviderTypeName: "openmetadata"}, &resp)
+		if _, ok := want[resp.TypeName]; !ok {
+			t.Fatalf("unexpected data source %q", resp.TypeName)
+		}
+		if !want[resp.TypeName] {
+			t.Fatalf("data source %q was registered without a resource of the same name", resp.TypeName)
+		}
 	}
 }
 
