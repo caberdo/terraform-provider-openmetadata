@@ -101,7 +101,9 @@ func (r *storedProcedureResource) Schema(_ context.Context, _ resource.SchemaReq
 			},
 			"stored_procedure_type": rschema.StringAttribute{
 				Optional:    true,
-				Description: "Procedure type: Function, StoredPackage, StoredProcedure, or UDF. The server fixes this at creation, so changing it replaces the procedure.",
+				Computed:    true,
+				Description: "Procedure type: Function, StoredPackage, StoredProcedure, or UDF. Defaults to StoredProcedure. The server fixes this at creation, so changing it replaces the procedure.",
+				Default:     stringdefault.StaticString("StoredProcedure"),
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},

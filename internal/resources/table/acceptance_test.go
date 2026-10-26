@@ -33,7 +33,7 @@ func TestAccTable_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "columns.0.data_type", "BIGINT"),
 					resource.TestCheckResourceAttr(resourceName, "columns.1.name", "email"),
 					resource.TestCheckResourceAttr(resourceName, "columns.1.data_type", "VARCHAR"),
-					resource.TestCheckResourceAttr(resourceName, "columns.1.precision", "255"),
+					resource.TestCheckResourceAttr(resourceName, "columns.1.data_length", "255"),
 					resource.TestCheckResourceAttrSet(resourceName, "id"),
 					resource.TestCheckResourceAttrSet(resourceName, "version"),
 					resource.TestCheckResourceAttrSet(resourceName, "updated_at"),
@@ -74,7 +74,7 @@ func testAccTableConfig(suffix, description string, withThirdColumn bool) string
     {
       name             = "email"
       data_type        = "VARCHAR"
-      precision        = 255
+      data_length      = 255
       ordinal_position = 2
     },`
 	if withThirdColumn {

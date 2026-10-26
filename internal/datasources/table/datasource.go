@@ -82,6 +82,10 @@ func (d *tableDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, 
 							Computed:    true,
 							Description: "OpenMetadata column data type.",
 						},
+						"data_length": dschema.Int64Attribute{
+							Computed:    true,
+							Description: "Length for character and binary column types.",
+						},
 						"description": dschema.StringAttribute{
 							Computed:    true,
 							Description: "Markdown description of the column.",

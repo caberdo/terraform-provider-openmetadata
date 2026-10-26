@@ -51,7 +51,7 @@ func TestSchema(t *testing.T) {
 		t.Fatal("columns must be computed")
 	}
 
-	for _, attribute := range []string{"name", "data_type", "description", "display_name", "ordinal_position", "precision", "scale"} {
+	for _, attribute := range []string{"name", "data_type", "data_length", "description", "display_name", "ordinal_position", "precision", "scale"} {
 		if _, ok := columns.NestedObject.Attributes[attribute]; !ok {
 			t.Fatalf("columns is missing nested attribute %q", attribute)
 		}
@@ -62,6 +62,7 @@ func TestSchema(t *testing.T) {
 type tableColumnModel struct {
 	Name            types.String `tfsdk:"name"`
 	DataType        types.String `tfsdk:"data_type"`
+	DataLength      types.Int64  `tfsdk:"data_length"`
 	Description     types.String `tfsdk:"description"`
 	DisplayName     types.String `tfsdk:"display_name"`
 	OrdinalPosition types.Int64  `tfsdk:"ordinal_position"`
@@ -76,6 +77,7 @@ func TestApplyMapsAPIFields(t *testing.T) {
 	displayName := "Users"
 	ordinal := int32(2)
 	precision := int32(255)
+	dataLength := int32(255)
 	description := "One row per user."
 
 	var model tableModel
@@ -93,6 +95,7 @@ func TestApplyMapsAPIFields(t *testing.T) {
 				DataType:        ometa.ColumnDataTypeVARCHAR,
 				OrdinalPosition: &ordinal,
 				Precision:       &precision,
+				DataLength:      &dataLength,
 			},
 		},
 	}, &model)
@@ -123,7 +126,8 @@ func TestApplyMapsAPIFields(t *testing.T) {
 	if columns[0].Name.ValueString() != "id" || columns[0].DataType.ValueString() != "BIGINT" {
 		t.Fatalf("first column = %#v", columns[0])
 	}
-	if columns[1].OrdinalPosition.ValueInt64() != 2 || columns[1].Precision.ValueInt64() != 255 {
+	if columns[1].OrdinalPosition.ValueInt64() != 2 || columns[1].Precision.ValueInt64() != 255 ||
+		columns[1].DataLength.ValueInt64() != 255 {
 		t.Fatalf("second column = %#v", columns[1])
 	}
 }

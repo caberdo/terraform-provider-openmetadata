@@ -52,7 +52,7 @@ resource "openmetadata_stored_procedure" "customer_report" {
 - `description` (String) Markdown description of the stored procedure.
 - `display_name` (String) Human-readable name shown in the OpenMetadata UI.
 - `language` (String) Language the procedure is written in: External, Java, JavaScript, Python, or SQL.
-- `stored_procedure_type` (String) Procedure type: Function, StoredPackage, StoredProcedure, or UDF. The server fixes this at creation, so changing it replaces the procedure.
+- `stored_procedure_type` (String) Procedure type: Function, StoredPackage, StoredProcedure, or UDF. Defaults to StoredProcedure. The server fixes this at creation, so changing it replaces the procedure.
 
 ### Read-Only
 

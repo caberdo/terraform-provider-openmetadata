@@ -73,10 +73,6 @@ func (d *queryDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, 
 				Computed:    true,
 				Description: "SQL text of the query.",
 			},
-			"query_type": dschema.StringAttribute{
-				Computed:    true,
-				Description: "Statement type, for example SELECT or INSERT.",
-			},
 			"version": dschema.Float64Attribute{
 				Computed:    true,
 				Description: "Server-side entity version.",

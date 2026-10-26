@@ -46,7 +46,6 @@ resource "openmetadata_query" "test" {
   service     = openmetadata_database_service.test.fully_qualified_name
   name        = %q
   query       = "SELECT * FROM orders"
-  query_type  = "SELECT"
   description = "Looked up by name"
 }
 

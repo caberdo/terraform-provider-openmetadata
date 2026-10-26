@@ -16,7 +16,6 @@ type queryModel struct {
 	DisplayName        types.String  `tfsdk:"display_name"`
 	Description        types.String  `tfsdk:"description"`
 	Query              types.String  `tfsdk:"query"`
-	QueryType          types.String  `tfsdk:"query_type"`
 	Version            types.Float64 `tfsdk:"version"`
 	UpdatedAt          types.String  `tfsdk:"updated_at"`
 	UpdatedBy          types.String  `tfsdk:"updated_by"`
@@ -32,7 +31,6 @@ func apply(query *ometa.Query, model *queryModel) {
 	model.DisplayName = convert.StringValue(query.DisplayName)
 	model.Description = convert.StringValueOr(query.Description, "")
 	model.Query = types.StringValue(query.Query)
-	model.QueryType = convert.StringValue(query.QueryType)
 	model.Version = convert.Float64Value(query.Version)
 	model.UpdatedAt = convert.TimestampValue(query.UpdatedAt)
 	model.UpdatedBy = convert.StringValue(query.UpdatedBy)

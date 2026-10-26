@@ -10,7 +10,6 @@ resource "openmetadata_query" "recent_orders" {
   display_name = "Recent orders"
   description  = "Orders placed in the last day."
   query        = "SELECT * FROM orders WHERE created_at > now() - interval '1 day'"
-  query_type   = "SELECT"
 }
 
 output "recent_orders_query_id" {

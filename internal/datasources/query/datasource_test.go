@@ -34,7 +34,6 @@ func TestSchema(t *testing.T) {
 		"display_name",
 		"description",
 		"query",
-		"query_type",
 		"version",
 		"updated_at",
 		"updated_by",
@@ -48,7 +47,6 @@ func TestSchema(t *testing.T) {
 func TestApplyMapsAPIFields(t *testing.T) {
 	id := uuid.MustParse("1f6a3a52-8d34-4f4b-9d0f-2f1c1c1c1c1c")
 	fqn := "sample_data.ecommerce_db.select_orders"
-	queryType := "SELECT"
 	serviceFQN := "sample_data.ecommerce_db"
 	description := "Orders placed in the last day."
 
@@ -59,7 +57,6 @@ func TestApplyMapsAPIFields(t *testing.T) {
 		FullyQualifiedName: &fqn,
 		Description:        &description,
 		Query:              "SELECT * FROM orders",
-		QueryType:          &queryType,
 		Service: ometa.EntityReference{
 			FullyQualifiedName: &serviceFQN,
 			Type:               "databaseService",
@@ -80,9 +77,6 @@ func TestApplyMapsAPIFields(t *testing.T) {
 	}
 	if model.Query.ValueString() != "SELECT * FROM orders" {
 		t.Fatalf("Query = %q", model.Query.ValueString())
-	}
-	if model.QueryType.ValueString() != queryType {
-		t.Fatalf("QueryType = %q", model.QueryType.ValueString())
 	}
 	if model.Description.ValueString() != "Orders placed in the last day." {
 		t.Fatalf("Description = %q", model.Description.ValueString())

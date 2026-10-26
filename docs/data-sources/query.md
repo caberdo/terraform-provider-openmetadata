@@ -36,7 +36,6 @@ output "recent_orders_query_text" {
 - `display_name` (String) Human-readable name.
 - `name` (String) Query name.
 - `query` (String) SQL text of the query.
-- `query_type` (String) Statement type, for example SELECT or INSERT.
 - `service` (String) Fully qualified name of the database service the query runs against.
 - `updated_at` (String) Last update time in RFC 3339 format.
 - `updated_by` (String) User that performed the last update.

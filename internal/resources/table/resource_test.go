@@ -53,7 +53,7 @@ func TestSchema(t *testing.T) {
 		t.Fatal("columns must be required")
 	}
 
-	for _, attribute := range []string{"name", "data_type", "description", "display_name", "ordinal_position", "precision", "scale"} {
+	for _, attribute := range []string{"name", "data_type", "data_length", "description", "display_name", "ordinal_position", "precision", "scale"} {
 		if _, ok := columns.NestedObject.Attributes[attribute]; !ok {
 			t.Fatalf("columns is missing nested attribute %q", attribute)
 		}
@@ -83,6 +83,7 @@ func TestApplyMapsAPIFields(t *testing.T) {
 	updatedBy := "admin"
 	ordinal := int32(2)
 	precision := int32(255)
+	dataLength := int32(255)
 	columnDescription := "Login address."
 
 	model := tableModel{DatabaseSchema: types.StringValue("previous.schema")}
@@ -104,6 +105,7 @@ func TestApplyMapsAPIFields(t *testing.T) {
 				Description:     &columnDescription,
 				OrdinalPosition: &ordinal,
 				Precision:       &precision,
+				DataLength:      &dataLength,
 			},
 		},
 	}, &model)
@@ -149,7 +151,8 @@ func TestApplyMapsAPIFields(t *testing.T) {
 	if columns[0].OrdinalPosition.ValueInt64() != 1 {
 		t.Fatalf("first column ordinal = %d, want 1", columns[0].OrdinalPosition.ValueInt64())
 	}
-	if columns[1].OrdinalPosition.ValueInt64() != 2 || columns[1].Precision.ValueInt64() != 255 {
+	if columns[1].OrdinalPosition.ValueInt64() != 2 || columns[1].Precision.ValueInt64() != 255 ||
+		columns[1].DataLength.ValueInt64() != 255 {
 		t.Fatalf("second column = %#v", columns[1])
 	}
 	if columns[1].Description.ValueString() != columnDescription {
@@ -184,6 +187,7 @@ func TestColumnsToAPI(t *testing.T) {
 		types.ObjectValueMust(tableColumnObjectType.AttrTypes, map[string]attr.Value{
 			"name":             types.StringValue("id"),
 			"data_type":        types.StringValue("BIGINT"),
+			"data_length":      types.Int64Null(),
 			"description":      types.StringNull(),
 			"display_name":     types.StringNull(),
 			"ordinal_position": types.Int64Value(1),
@@ -193,6 +197,7 @@ func TestColumnsToAPI(t *testing.T) {
 		types.ObjectValueMust(tableColumnObjectType.AttrTypes, map[string]attr.Value{
 			"name":             types.StringValue("email"),
 			"data_type":        types.StringValue("VARCHAR"),
+			"data_length":      types.Int64Value(255),
 			"description":      types.StringValue(columnDescription),
 			"display_name":     types.StringValue("Email"),
 			"ordinal_position": types.Int64Value(2),
@@ -211,7 +216,7 @@ func TestColumnsToAPI(t *testing.T) {
 	if converted[0].Name != "id" || converted[0].DataType != ometa.ColumnDataTypeBIGINT {
 		t.Fatalf("first column = %#v", converted[0])
 	}
-	if converted[0].Description != nil || converted[0].Precision != nil {
+	if converted[0].Description != nil || converted[0].Precision != nil || converted[0].DataLength != nil {
 		t.Fatalf("first column optional fields = %#v", converted[0])
 	}
 	if converted[1].DataType != ometa.ColumnDataTypeVARCHAR {
@@ -219,6 +224,9 @@ func TestColumnsToAPI(t *testing.T) {
 	}
 	if converted[1].Precision == nil || *converted[1].Precision != 255 {
 		t.Fatalf("second column precision = %#v", converted[1].Precision)
+	}
+	if converted[1].DataLength == nil || *converted[1].DataLength != 255 {
+		t.Fatalf("second column data length = %#v", converted[1].DataLength)
 	}
 	if converted[1].Description == nil || *converted[1].Description != columnDescription {
 		t.Fatalf("second column description = %#v", converted[1].Description)
@@ -233,6 +241,7 @@ func TestPatchOps(t *testing.T) {
 		types.ObjectValueMust(tableColumnObjectType.AttrTypes, map[string]attr.Value{
 			"name":             types.StringValue("id"),
 			"data_type":        types.StringValue("BIGINT"),
+			"data_length":      types.Int64Null(),
 			"description":      types.StringNull(),
 			"display_name":     types.StringNull(),
 			"ordinal_position": types.Int64Value(1),
@@ -245,6 +254,7 @@ func TestPatchOps(t *testing.T) {
 		types.ObjectValueMust(tableColumnObjectType.AttrTypes, map[string]attr.Value{
 			"name":             types.StringValue("email"),
 			"data_type":        types.StringValue("VARCHAR"),
+			"data_length":      types.Int64Value(255),
 			"description":      types.StringNull(),
 			"display_name":     types.StringNull(),
 			"ordinal_position": types.Int64Value(2),

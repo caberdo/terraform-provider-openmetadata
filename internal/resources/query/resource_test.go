@@ -43,11 +43,6 @@ func TestSchema(t *testing.T) {
 		t.Fatal("name must be optional and computed")
 	}
 
-	queryType, ok := resp.Schema.Attributes["query_type"].(rschema.StringAttribute)
-	if !ok || !queryType.Optional || queryType.Computed {
-		t.Fatal("query_type must be an optional string")
-	}
-
 	description, ok := resp.Schema.Attributes["description"].(rschema.StringAttribute)
 	if !ok || !description.Optional || !description.Computed || description.Default == nil {
 		t.Fatal("description must be optional, computed, and default to an empty string")
@@ -71,7 +66,6 @@ func TestApplyMapsAPIFields(t *testing.T) {
 	fqn := "sample_data.ecommerce_db.select_orders"
 	name := "select_orders"
 	displayName := "Select orders"
-	queryType := "SELECT"
 	version := 0.3
 	updatedAt := int64(1700000000000)
 	updatedBy := "admin"
@@ -86,7 +80,6 @@ func TestApplyMapsAPIFields(t *testing.T) {
 		DisplayName:        &displayName,
 		Description:        &description,
 		Query:              "SELECT * FROM orders",
-		QueryType:          &queryType,
 		Service: ometa.EntityReference{
 			FullyQualifiedName: &serviceFQN,
 			Type:               "databaseService",
@@ -114,9 +107,6 @@ func TestApplyMapsAPIFields(t *testing.T) {
 	if model.Query.ValueString() != "SELECT * FROM orders" {
 		t.Fatalf("Query = %q", model.Query.ValueString())
 	}
-	if model.QueryType.ValueString() != queryType {
-		t.Fatalf("QueryType = %q", model.QueryType.ValueString())
-	}
 	if model.Service.ValueString() != serviceFQN {
 		t.Fatalf("Service = %q", model.Service.ValueString())
 	}
@@ -142,9 +132,6 @@ func TestApplyKeepsPriorServiceWhenOmitted(t *testing.T) {
 	}
 	if !model.DisplayName.IsNull() {
 		t.Fatalf("DisplayName = %v, want null", model.DisplayName)
-	}
-	if !model.QueryType.IsNull() {
-		t.Fatalf("QueryType = %v, want null", model.QueryType)
 	}
 	if !model.UpdatedAt.IsNull() {
 		t.Fatalf("UpdatedAt = %v, want null", model.UpdatedAt)

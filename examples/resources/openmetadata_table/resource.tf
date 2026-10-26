@@ -29,7 +29,7 @@ resource "openmetadata_table" "users" {
     {
       name             = "email"
       data_type        = "VARCHAR"
-      precision        = 255
+      data_length      = 255
       ordinal_position = 2
     },
     {

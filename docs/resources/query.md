@@ -25,7 +25,6 @@ resource "openmetadata_query" "recent_orders" {
   display_name = "Recent orders"
   description  = "Orders placed in the last day."
   query        = "SELECT * FROM orders WHERE created_at > now() - interval '1 day'"
-  query_type   = "SELECT"
 }
 
 output "recent_orders_query_id" {
@@ -46,7 +45,6 @@ output "recent_orders_query_id" {
 - `description` (String) Markdown description of the query.
 - `display_name` (String) Human-readable name shown in the OpenMetadata UI.
 - `name` (String) Query name. When omitted the server derives one from the query text. Changing it replaces the query, because the name is part of its fully qualified name.
-- `query_type` (String) Statement type, for example SELECT or INSERT. Changing it replaces the query.
 
 ### Read-Only
 

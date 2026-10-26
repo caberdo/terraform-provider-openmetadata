@@ -108,6 +108,11 @@ func (r *tableResource) Schema(_ context.Context, _ resource.SchemaRequest, resp
 								stringvalidator.LengthAtLeast(1),
 							},
 						},
+						"data_length": rschema.Int64Attribute{
+							Optional:    true,
+							Computed:    true,
+							Description: "Length for CHAR, VARCHAR, BINARY and VARBINARY columns. The server requires it for those types.",
+						},
 						"description": rschema.StringAttribute{
 							Optional:    true,
 							Description: "Markdown description of the column.",
@@ -124,7 +129,7 @@ func (r *tableResource) Schema(_ context.Context, _ resource.SchemaRequest, resp
 						"precision": rschema.Int64Attribute{
 							Optional:    true,
 							Computed:    true,
-							Description: "Numeric precision, for example 255 for VARCHAR(255).",
+							Description: "Numeric precision for DECIMAL and NUMERIC columns.",
 						},
 						"scale": rschema.Int64Attribute{
 							Optional:    true,

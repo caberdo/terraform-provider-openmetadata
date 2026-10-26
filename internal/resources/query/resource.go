@@ -96,13 +96,6 @@ func (r *queryResource) Schema(_ context.Context, _ resource.SchemaRequest, resp
 					stringvalidator.LengthAtLeast(1),
 				},
 			},
-			"query_type": rschema.StringAttribute{
-				Optional:    true,
-				Description: "Statement type, for example SELECT or INSERT. Changing it replaces the query.",
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
-				},
-			},
 			"version": rschema.Float64Attribute{
 				Computed:    true,
 				Description: "Server-side entity version.",
@@ -154,7 +147,6 @@ func (r *queryResource) Create(ctx context.Context, req resource.CreateRequest, 
 		Query:       plan.Query.ValueString(),
 		Service:     plan.Service.ValueString(),
 		Description: convert.StringPointer(plan.Description),
-		QueryType:   convert.StringPointer(plan.QueryType),
 	}
 	body.DisplayName = convert.StringPointer(plan.DisplayName)
 
@@ -281,8 +273,8 @@ func lookupQuery(ctx context.Context, sdk *ometa.Client, reference string) (*ome
 }
 
 // patchOps builds the JSON Patch document for the fields this resource owns.
-// name, service, and query_type are not patchable because the server treats
-// them as identity; their attributes carry RequiresReplace instead.
+// name and service are not patchable because the server treats them as
+// identity; their attributes carry RequiresReplace instead.
 func patchOps(plan, state queryModel) []ometa.JSONPatchOp {
 	var ops []ometa.JSONPatchOp
 

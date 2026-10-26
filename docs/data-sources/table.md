@@ -50,6 +50,7 @@ output "users_columns" {
 
 Read-Only:
 
+- `data_length` (Number) Length for character and binary column types.
 - `data_type` (String) OpenMetadata column data type.
 - `description` (String) Markdown description of the column.
 - `display_name` (String) Human-readable column name.

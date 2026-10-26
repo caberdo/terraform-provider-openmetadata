@@ -29,7 +29,6 @@ func TestAccQuery_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttr(resourceName, "fully_qualified_name", serviceName+"."+name),
 					resource.TestCheckResourceAttr(resourceName, "query", "SELECT * FROM orders"),
-					resource.TestCheckResourceAttr(resourceName, "query_type", "SELECT"),
 					resource.TestCheckResourceAttr(resourceName, "description", "Initial description"),
 					resource.TestCheckResourceAttrSet(resourceName, "id"),
 					resource.TestCheckResourceAttrSet(resourceName, "service"),
@@ -72,7 +71,6 @@ resource "openmetadata_query" "test" {
   service     = openmetadata_database_service.test.fully_qualified_name
   name        = %q
   query       = %q
-  query_type  = "SELECT"
   description = %q
 }
 `, serviceName, name, query, description)

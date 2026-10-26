@@ -17,6 +17,7 @@ import (
 var tableColumnObjectType = types.ObjectType{AttrTypes: map[string]attr.Type{
 	"name":             types.StringType,
 	"data_type":        types.StringType,
+	"data_length":      types.Int64Type,
 	"description":      types.StringType,
 	"display_name":     types.StringType,
 	"ordinal_position": types.Int64Type,
@@ -28,6 +29,7 @@ var tableColumnObjectType = types.ObjectType{AttrTypes: map[string]attr.Type{
 type tableColumnModel struct {
 	Name            types.String `tfsdk:"name"`
 	DataType        types.String `tfsdk:"data_type"`
+	DataLength      types.Int64  `tfsdk:"data_length"`
 	Description     types.String `tfsdk:"description"`
 	DisplayName     types.String `tfsdk:"display_name"`
 	OrdinalPosition types.Int64  `tfsdk:"ordinal_position"`
@@ -83,6 +85,7 @@ func columnsValue(columns []ometa.Column) types.List {
 		elements = append(elements, types.ObjectValueMust(tableColumnObjectType.AttrTypes, map[string]attr.Value{
 			"name":             types.StringValue(column.Name),
 			"data_type":        types.StringValue(string(column.DataType)),
+			"data_length":      convert.Int32Value(column.DataLength),
 			"description":      convert.StringValue(column.Description),
 			"display_name":     convert.StringValue(column.DisplayName),
 			"ordinal_position": ordinal,
@@ -111,6 +114,7 @@ func columnsToAPI(ctx context.Context, value types.List) ([]ometa.Column, diag.D
 		column := ometa.Column{
 			Name:            model.Name.ValueString(),
 			DataType:        ometa.ColumnDataType(model.DataType.ValueString()),
+			DataLength:      int32Pointer(model.DataLength),
 			Description:     convert.StringPointer(model.Description),
 			DisplayName:     convert.StringPointer(model.DisplayName),
 			OrdinalPosition: int32Pointer(model.OrdinalPosition),

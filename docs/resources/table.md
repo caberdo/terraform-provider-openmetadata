@@ -44,7 +44,7 @@ resource "openmetadata_table" "users" {
     {
       name             = "email"
       data_type        = "VARCHAR"
-      precision        = 255
+      data_length      = 255
       ordinal_position = 2
     },
     {
@@ -88,10 +88,11 @@ Required:
 
 Optional:
 
+- `data_length` (Number) Length for CHAR, VARCHAR, BINARY and VARBINARY columns. The server requires it for those types.
 - `description` (String) Markdown description of the column.
 - `display_name` (String) Human-readable column name.
 - `ordinal_position` (Number) One-based position of the column. Filled by the server when omitted.
-- `precision` (Number) Numeric precision, for example 255 for VARCHAR(255).
+- `precision` (Number) Numeric precision for DECIMAL and NUMERIC columns.
 - `scale` (Number) Numeric scale.
 
 ## Import
