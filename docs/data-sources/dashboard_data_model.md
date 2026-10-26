@@ -52,6 +52,7 @@ output "sales_data_model_columns" {
 
 Read-Only:
 
+- `data_length` (Number) Maximum length for char, varchar, binary and varbinary columns.
 - `data_type` (String) OpenMetadata column data type.
 - `description` (String) Markdown description of the column.
 - `display_name` (String) Human-readable column name.

@@ -84,12 +84,16 @@ func TestSchema(t *testing.T) {
 			t.Fatalf("columns.%s must be a string", attribute)
 		}
 	}
+	if _, ok := columns.NestedObject.Attributes["data_length"].(rschema.Int64Attribute); !ok {
+		t.Fatal("columns.data_length must be a number")
+	}
 }
 
 func TestColumnsRoundTrip(t *testing.T) {
 	ctx := context.Background()
 	displayName := "Total Sales"
 	description := "Sum of all sales."
+	dataLength := int32(256)
 
 	apiColumns := []ometa.Column{
 		{
@@ -99,8 +103,9 @@ func TestColumnsRoundTrip(t *testing.T) {
 			Description: &description,
 		},
 		{
-			Name:     "region",
-			DataType: ometa.ColumnDataType("VARCHAR"),
+			Name:       "region",
+			DataType:   ometa.ColumnDataType("VARCHAR"),
+			DataLength: &dataLength,
 		},
 	}
 
@@ -127,6 +132,9 @@ func TestColumnsRoundTrip(t *testing.T) {
 	}
 	if roundTripped[1].DisplayName != nil {
 		t.Fatalf("second column display name = %v, want nil", roundTripped[1].DisplayName)
+	}
+	if roundTripped[1].DataLength == nil || *roundTripped[1].DataLength != dataLength {
+		t.Fatalf("second column data length = %v, want %d", roundTripped[1].DataLength, dataLength)
 	}
 }
 

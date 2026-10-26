@@ -35,6 +35,7 @@ func TestAccDashboardDataModel_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "columns.#", "2"),
 					resource.TestCheckResourceAttr(resourceName, "columns.0.name", "region"),
 					resource.TestCheckResourceAttr(resourceName, "columns.0.data_type", "VARCHAR"),
+					resource.TestCheckResourceAttr(resourceName, "columns.0.data_length", "256"),
 					resource.TestCheckResourceAttr(resourceName, "columns.1.name", "total_sales"),
 					resource.TestCheckResourceAttr(resourceName, "columns.1.data_type", "DOUBLE"),
 					resource.TestCheckResourceAttrSet(resourceName, "id"),
@@ -85,6 +86,7 @@ resource "openmetadata_dashboard_data_model" "test" {
     {
       name        = "region"
       data_type   = "VARCHAR"
+      data_length = 256
       description = "Sales region."
     },
     {
@@ -115,6 +117,7 @@ resource "openmetadata_dashboard_data_model" "test" {
     {
       name        = "region"
       data_type   = "VARCHAR"
+      data_length = 256
       description = "Updated region description."
     },
     {

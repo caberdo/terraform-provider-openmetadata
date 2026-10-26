@@ -57,6 +57,9 @@ func TestSchema(t *testing.T) {
 			t.Fatalf("columns.%s must be a string", attribute)
 		}
 	}
+	if _, ok := columns.NestedObject.Attributes["data_length"].(dschema.Int64Attribute); !ok {
+		t.Fatal("columns.data_length must be a number")
+	}
 }
 
 func TestApplyMapsAPIFields(t *testing.T) {
@@ -68,6 +71,7 @@ func TestApplyMapsAPIFields(t *testing.T) {
 	sql := "SELECT * FROM sales"
 	serviceFQN := "warehouse"
 	columnDescription := "Region name."
+	columnLength := int32(256)
 
 	var model dashboardDataModelModel
 	diags := apply(ctx, &ometa.DashboardDataModel{
@@ -83,6 +87,7 @@ func TestApplyMapsAPIFields(t *testing.T) {
 				Name:        "region",
 				DataType:    ometa.ColumnDataType("VARCHAR"),
 				Description: &columnDescription,
+				DataLength:  &columnLength,
 			},
 		},
 		Service: &ometa.EntityReference{FullyQualifiedName: &serviceFQN},
@@ -131,5 +136,8 @@ func TestApplyMapsAPIFields(t *testing.T) {
 	}
 	if columns[0].Description.ValueString() != columnDescription {
 		t.Fatalf("column description = %q", columns[0].Description.ValueString())
+	}
+	if columns[0].DataLength.ValueInt64() != int64(columnLength) {
+		t.Fatalf("column data length = %v", columns[0].DataLength)
 	}
 }

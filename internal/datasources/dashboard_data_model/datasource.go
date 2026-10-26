@@ -98,6 +98,10 @@ func (d *dashboardDataModelDataSource) Schema(_ context.Context, _ datasource.Sc
 							Computed:    true,
 							Description: "Markdown description of the column.",
 						},
+						"data_length": dschema.Int64Attribute{
+							Computed:    true,
+							Description: "Maximum length for char, varchar, binary and varbinary columns.",
+						},
 					},
 				},
 			},

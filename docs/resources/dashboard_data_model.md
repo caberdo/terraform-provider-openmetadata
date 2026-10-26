@@ -31,6 +31,7 @@ resource "openmetadata_dashboard_data_model" "sales" {
       name         = "region"
       display_name = "Region"
       data_type    = "VARCHAR"
+      data_length  = 256
       description  = "Sales region."
     },
     {
@@ -77,6 +78,7 @@ Required:
 
 Optional:
 
+- `data_length` (Number) Maximum length for char, varchar, binary and varbinary columns. OpenMetadata requires it for those types.
 - `description` (String) Markdown description of the column.
 - `display_name` (String) Human-readable column name.
 

@@ -18,6 +18,7 @@ var columnAttrTypes = map[string]attr.Type{
 	"data_type":    types.StringType,
 	"display_name": types.StringType,
 	"description":  types.StringType,
+	"data_length":  types.Int64Type,
 }
 
 // columnModel is the Terraform representation of a single data model column.
@@ -26,6 +27,7 @@ type columnModel struct {
 	DataType    types.String `tfsdk:"data_type"`
 	DisplayName types.String `tfsdk:"display_name"`
 	Description types.String `tfsdk:"description"`
+	DataLength  types.Int64  `tfsdk:"data_length"`
 }
 
 // dashboardDataModelModel is the Terraform representation of a dashboard data
@@ -85,6 +87,7 @@ func columnsToList(ctx context.Context, columns []ometa.Column) (types.List, dia
 			DataType:    types.StringValue(string(column.DataType)),
 			DisplayName: convert.StringValue(column.DisplayName),
 			Description: convert.StringValueOr(column.Description, ""),
+			DataLength:  convert.Int32Value(column.DataLength),
 		})
 	}
 

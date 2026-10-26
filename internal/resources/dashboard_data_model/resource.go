@@ -150,6 +150,10 @@ func (r *dashboardDataModelResource) Schema(_ context.Context, _ resource.Schema
 							Description: "Markdown description of the column.",
 							Default:     stringdefault.StaticString(""),
 						},
+						"data_length": rschema.Int64Attribute{
+							Optional:    true,
+							Description: "Maximum length for char, varchar, binary and varbinary columns. OpenMetadata requires it for those types.",
+						},
 					},
 				},
 			},

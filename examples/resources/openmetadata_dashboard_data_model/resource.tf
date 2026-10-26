@@ -16,6 +16,7 @@ resource "openmetadata_dashboard_data_model" "sales" {
       name         = "region"
       display_name = "Region"
       data_type    = "VARCHAR"
+      data_length  = 256
       description  = "Sales region."
     },
     {

@@ -52,8 +52,9 @@ resource "openmetadata_dashboard_data_model" "test" {
 
   columns = [
     {
-      name      = "region"
-      data_type = "VARCHAR"
+      name        = "region"
+      data_type   = "VARCHAR"
+      data_length = 256
     },
     {
       name      = "total_sales"
