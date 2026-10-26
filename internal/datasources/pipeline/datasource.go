@@ -185,12 +185,17 @@ func (d *pipelineDataSource) Read(ctx context.Context, req datasource.ReadReques
 		return
 	}
 
+	fields := "tasks"
 	var found *ometa.Pipeline
 	switch {
 	case !config.ID.IsNull() && config.ID.ValueString() != "":
-		found, err = sdk.Pipelines.GetByID(ctx, config.ID.ValueString(), nil)
+		found, err = sdk.Pipelines.GetByID(ctx, config.ID.ValueString(), &ometa.GetPipelineWithIDParams{
+			Fields: &fields,
+		})
 	case !config.FullyQualifiedName.IsNull() && config.FullyQualifiedName.ValueString() != "":
-		found, err = sdk.Pipelines.GetByName(ctx, config.FullyQualifiedName.ValueString(), nil)
+		found, err = sdk.Pipelines.GetByName(ctx, config.FullyQualifiedName.ValueString(), &ometa.GetPipelineByFQNParams{
+			Fields: &fields,
+		})
 	default:
 		resp.Diagnostics.AddError(
 			"Missing pipeline identifier",

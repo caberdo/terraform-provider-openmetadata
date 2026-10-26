@@ -380,16 +380,22 @@ func (r *pipelineResource) ImportState(ctx context.Context, req resource.ImportS
 }
 
 // lookupPipeline resolves a UUID or a fully qualified name. Read and Import
-// both go through it so either identifier works.
+// both go through it so either identifier works. Tasks are requested
+// explicitly, because the API omits them by default.
 func lookupPipeline(ctx context.Context, sdk *ometa.Client, reference string) (*ometa.Pipeline, error) {
-	found, err := sdk.Pipelines.GetByID(ctx, reference, nil)
+	fields := "tasks"
+	found, err := sdk.Pipelines.GetByID(ctx, reference, &ometa.GetPipelineWithIDParams{
+		Fields: &fields,
+	})
 	if err == nil {
 		return found, nil
 	}
 	if !client.NotFound(err) && !client.BadRequest(err) {
 		return nil, err
 	}
-	return sdk.Pipelines.GetByName(ctx, reference, nil)
+	return sdk.Pipelines.GetByName(ctx, reference, &ometa.GetPipelineByFQNParams{
+		Fields: &fields,
+	})
 }
 
 // patchOps builds the JSON Patch document for the fields this resource owns.
