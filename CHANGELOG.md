@@ -24,6 +24,10 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Wave 4 pipelines and messaging: `pipeline_service`, `pipeline`,
   `messaging_service` and `topic` resources and data sources, including pipeline
   tasks and topic message schemas, retention and cleanup policies.
+- Wave 5 platform services: `storage_service`, `container`,
+  `ml_model_service`, `ml_model`, `search_service`, `search_index`,
+  `metadata_service` and `security_service` resources and data sources,
+  including container parent resolution and search index field management.
 - A narrow raw `DELETE` helper in `internal/client` for domains and data
   products. The Go SDK exposes no `Delete` for those services even though the
   REST API supports a permanent delete.

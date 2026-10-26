@@ -14,10 +14,13 @@ are preserved rather than zeroed.
 > (`classification`, `tag`, `glossary_term`, `domain`, `data_product`, `metric`),
 > the wave 2 database entities (`database_service`, `database`, `database_schema`,
 > `table`, `stored_procedure`, `query`), the wave 3 BI entities (`chart`,
-> `dashboard`, `dashboard_data_model`, `dashboard_service`) and the wave 4
+> `dashboard`, `dashboard_data_model`, `dashboard_service`), the wave 4
 > pipeline and messaging entities (`pipeline_service`, `pipeline`,
-> `messaging_service`, `topic`) are implemented. The remaining entities are
-> tracked in [TASKS.md](TASKS.md) and in the wave epics on GitHub.
+> `messaging_service`, `topic`) and the wave 5 platform services
+> (`storage_service`, `container`, `ml_model_service`, `ml_model`,
+> `search_service`, `search_index`, `metadata_service`,
+> `security_service`) are implemented. The remaining entities are tracked in
+> [TASKS.md](TASKS.md) and in the wave epics on GitHub.
 
 ## Requirements
 
