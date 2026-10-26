@@ -29,11 +29,15 @@ import (
 	domaindatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/domain"
 	glossarydatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/glossary"
 	glossarytermdatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/glossary_term"
+	messagingservicedatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/messaging_service"
 	metricdatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/metric"
+	pipelinedatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/pipeline"
+	pipelineservicedatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/pipeline_service"
 	querydatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/query"
 	storedproceduredatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/stored_procedure"
 	tabledatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/table"
 	tagdatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/tag"
+	topicdatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/topic"
 	"github.com/caberdo/terraform-provider-openmetadata/internal/providerdata"
 	chartresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/chart"
 	classificationresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/classification"
@@ -47,11 +51,15 @@ import (
 	domainresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/domain"
 	glossaryresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/glossary"
 	glossarytermresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/glossary_term"
+	messagingserviceresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/messaging_service"
 	metricresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/metric"
+	pipelineresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/pipeline"
+	pipelineserviceresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/pipeline_service"
 	queryresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/query"
 	storedprocedureresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/stored_procedure"
 	tableresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/table"
 	tagresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/tag"
+	topicresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/topic"
 )
 
 // providerTypeName is the Terraform provider type name: the prefix of every
@@ -187,11 +195,15 @@ func (p *OpenMetadataProvider) Resources(_ context.Context) []func() resource.Re
 		domainresource.NewResource,
 		glossaryresource.NewResource,
 		glossarytermresource.NewResource,
+		messagingserviceresource.NewResource,
 		metricresource.NewResource,
+		pipelineresource.NewResource,
+		pipelineserviceresource.NewResource,
 		queryresource.NewResource,
 		storedprocedureresource.NewResource,
 		tableresource.NewResource,
 		tagresource.NewResource,
+		topicresource.NewResource,
 	}
 }
 
@@ -210,11 +222,15 @@ func (p *OpenMetadataProvider) DataSources(_ context.Context) []func() datasourc
 		domaindatasource.NewDataSource,
 		glossarydatasource.NewDataSource,
 		glossarytermdatasource.NewDataSource,
+		messagingservicedatasource.NewDataSource,
 		metricdatasource.NewDataSource,
+		pipelinedatasource.NewDataSource,
+		pipelineservicedatasource.NewDataSource,
 		querydatasource.NewDataSource,
 		storedproceduredatasource.NewDataSource,
 		tabledatasource.NewDataSource,
 		tagdatasource.NewDataSource,
+		topicdatasource.NewDataSource,
 	}
 }
 
