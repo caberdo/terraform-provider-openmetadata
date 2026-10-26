@@ -2,6 +2,8 @@ package data_product
 
 import (
 	"context"
+	"net/http"
+	"net/http/httptest"
 	"reflect"
 	"testing"
 
@@ -113,12 +115,47 @@ func TestApplyKeepsDomainsWhenReferencesAreMissing(t *testing.T) {
 	}
 }
 
+func TestDomainReferencesResolveIDs(t *testing.T) {
+	id := uuid.MustParse("2f6a3a52-8d34-4f4b-9d0f-2f1c1c1c1c1c")
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/api/v1/domains/name/Sales" {
+			http.NotFound(w, r)
+			return
+		}
+		_, _ = w.Write([]byte(`{"id":"` + id.String() + `","name":"Sales","fullyQualifiedName":"Sales","type":"domain"}`))
+	}))
+	defer srv.Close()
+
+	sdk := ometa.NewClient(srv.URL, ometa.WithToken("test"), ometa.WithHTTPClient(srv.Client()))
+	domains := types.ListValueMust(types.StringType, []attr.Value{types.StringValue("Sales")})
+
+	references, diags := domainReferences(context.Background(), sdk, domains)
+	if diags.HasError() {
+		t.Fatalf("domainReferences() diagnostics = %v", diags.Errors())
+	}
+	if len(references) != 1 {
+		t.Fatalf("len(references) = %d, want 1", len(references))
+	}
+	if references[0].Id != id {
+		t.Fatalf("reference id = %s, want %s", references[0].Id, id)
+	}
+	if references[0].Type != "domain" {
+		t.Fatalf("reference type = %q", references[0].Type)
+	}
+	if references[0].FullyQualifiedName == nil || *references[0].FullyQualifiedName != "Sales" {
+		t.Fatalf("reference fqn = %#v", references[0].FullyQualifiedName)
+	}
+}
+
 func TestPatchOps(t *testing.T) {
 	base := dataProductModel{
 		DisplayName: types.StringValue("Display"),
 		Description: types.StringValue("before"),
 		Domains:     types.ListValueMust(types.StringType, []attr.Value{types.StringValue("Marketing")}),
 	}
+
+	domainRef := ometa.EntityReference{Id: uuid.New(), Type: "domain"}
+	domainRefs := []ometa.EntityReference{domainRef}
 
 	tests := []struct {
 		name      string
@@ -172,16 +209,13 @@ func TestPatchOps(t *testing.T) {
 			wantOps:   1,
 			wantPath:  "/domains",
 			wantOp:    "add",
-			wantValue: []string{"Sales"},
+			wantValue: domainRefs,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ops, diags := patchOps(context.Background(), tt.plan, tt.state)
-			if diags.HasError() {
-				t.Fatalf("patchOps() diagnostics = %v", diags.Errors())
-			}
+			ops := patchOps(tt.plan, tt.state, domainRefs)
 			if len(ops) != tt.wantOps {
 				t.Fatalf("len(ops) = %d, want %d: %#v", len(ops), tt.wantOps, ops)
 			}

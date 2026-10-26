@@ -207,11 +207,17 @@ func (r *dataProductResource) Update(ctx context.Context, req resource.UpdateReq
 		return
 	}
 
-	ops, diags := patchOps(ctx, plan, state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
+	var domainRefs []ometa.EntityReference
+	if !plan.Domains.Equal(state.Domains) {
+		var diags diag.Diagnostics
+		domainRefs, diags = domainReferences(ctx, sdk, plan.Domains)
+		resp.Diagnostics.Append(diags...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
 	}
+
+	ops := patchOps(plan, state, domainRefs)
 
 	if len(ops) > 0 {
 		updated, err := sdk.DataProducts.Patch(ctx, state.ID.ValueString(), ops)
@@ -274,9 +280,10 @@ func lookupDataProduct(ctx context.Context, sdk *ometa.Client, reference string)
 }
 
 // patchOps builds the JSON Patch document for the fields this resource owns.
-func patchOps(ctx context.Context, plan, state dataProductModel) ([]ometa.JSONPatchOp, diag.Diagnostics) {
+// The domains value must be entity references: unlike create, the update
+// endpoint does not accept fully qualified name strings.
+func patchOps(plan, state dataProductModel, domains []ometa.EntityReference) []ometa.JSONPatchOp {
 	var ops []ometa.JSONPatchOp
-	var diags diag.Diagnostics
 
 	switch {
 	case plan.DisplayName.Equal(state.DisplayName):
@@ -299,8 +306,6 @@ func patchOps(ctx context.Context, plan, state dataProductModel) ([]ometa.JSONPa
 	}
 
 	if !plan.Domains.Equal(state.Domains) {
-		domains, domainDiags := convert.StringList(ctx, plan.Domains)
-		diags.Append(domainDiags...)
 		ops = append(ops, ometa.JSONPatchOp{
 			Op:    "add",
 			Path:  "/domains",
@@ -308,5 +313,39 @@ func patchOps(ctx context.Context, plan, state dataProductModel) ([]ometa.JSONPa
 		})
 	}
 
-	return ops, diags
+	return ops
+}
+
+// domainReferences turns the fully qualified names in the plan into the entity
+// references the data product update endpoint expects.
+func domainReferences(ctx context.Context, sdk *ometa.Client, values types.List) ([]ometa.EntityReference, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	names, nameDiags := convert.StringList(ctx, values)
+	diags.Append(nameDiags...)
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	references := make([]ometa.EntityReference, 0, len(names))
+	for _, name := range names {
+		domain, err := sdk.Domains.GetByName(ctx, name, nil)
+		if err != nil {
+			diags.AddError(
+				"Failed to resolve OpenMetadata domain",
+				fmt.Sprintf("Could not resolve domain %q: %s", name, client.ErrorDetail(err)),
+			)
+			continue
+		}
+
+		reference := ometa.EntityReference{
+			Id:                 domain.Id,
+			Type:               "domain",
+			FullyQualifiedName: domain.FullyQualifiedName,
+		}
+		reference.Name = &domain.Name
+		references = append(references, reference)
+	}
+
+	return references, diags
 }
