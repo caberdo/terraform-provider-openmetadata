@@ -45,11 +45,15 @@ func TestProviderRegistersAllTypes(t *testing.T) {
 		"openmetadata_domain":               false,
 		"openmetadata_glossary":             false,
 		"openmetadata_glossary_term":        false,
+		"openmetadata_messaging_service":    false,
 		"openmetadata_metric":               false,
+		"openmetadata_pipeline":             false,
+		"openmetadata_pipeline_service":     false,
 		"openmetadata_query":                false,
 		"openmetadata_stored_procedure":     false,
 		"openmetadata_table":                false,
 		"openmetadata_tag":                  false,
+		"openmetadata_topic":                false,
 	}
 
 	resources := p.Resources(ctx)

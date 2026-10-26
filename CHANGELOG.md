@@ -21,6 +21,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Wave 3 BI stack: `chart`, `dashboard`, `dashboard_data_model` and
   `dashboard_service` resources and data sources, including dashboard/chart
   relationships, data model columns and JSON connector configuration.
+- Wave 4 pipelines and messaging: `pipeline_service`, `pipeline`,
+  `messaging_service` and `topic` resources and data sources, including pipeline
+  tasks and topic message schemas, retention and cleanup policies.
 - A narrow raw `DELETE` helper in `internal/client` for domains and data
   products. The Go SDK exposes no `Delete` for those services even though the
   REST API supports a permanent delete.
