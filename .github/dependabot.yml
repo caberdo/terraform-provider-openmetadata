@@ -1,0 +1,51 @@
+version: 2
+
+updates:
+  - package-ecosystem: "gomod"
+    directory: "/"
+    schedule:
+      interval: "daily"
+      time: "03:00"
+      timezone: "Europe/Amsterdam"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "deps"
+    commit-message:
+      prefix: "chore(deps)"
+      include: "scope"
+
+  # The stack mixes the test toolchain with the server under test. Only `golang`
+  # may move: the OpenMetadata image tag is driven by
+  # .github/openmetadata-version.txt, and Elasticsearch must stay on the version
+  # the pinned server was tested with. An automated bump to either would silently
+  # change what the acceptance suite runs against.
+  - package-ecosystem: "docker-compose"
+    directory: "/"
+    schedule:
+      interval: "daily"
+      time: "03:00"
+      timezone: "Europe/Amsterdam"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "deps"
+    commit-message:
+      prefix: "chore(deps)"
+      include: "scope"
+    allow:
+      - dependency-name: "golang"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "daily"
+      time: "03:00"
+      timezone: "Europe/Amsterdam"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "deps"
+    commit-message:
+      prefix: "chore(ci)"
+      include: "scope"

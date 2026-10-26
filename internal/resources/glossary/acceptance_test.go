@@ -39,6 +39,16 @@ func TestAccGlossary_basic(t *testing.T) {
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "display_name", "Acceptance Glossary"),
 					resource.TestCheckResourceAttr(resourceName, "description", "Updated description"),
+					resource.TestCheckResourceAttr(resourceName, "mutually_exclusive", "false"),
+				),
+			},
+			{
+				// The server fixes mutually_exclusive at creation, so the
+				// attribute forces replacement instead of an in-place patch.
+				Config: testAccGlossaryConfigExclusive(name, "Updated description"),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "display_name", "Acceptance Glossary"),
+					resource.TestCheckResourceAttr(resourceName, "description", "Updated description"),
 					resource.TestCheckResourceAttr(resourceName, "mutually_exclusive", "true"),
 				),
 			},
@@ -67,6 +77,16 @@ resource "openmetadata_glossary" "test" {
 }
 
 func testAccGlossaryConfigUpdated(name, description string) string {
+	return fmt.Sprintf(`
+resource "openmetadata_glossary" "test" {
+  name         = %q
+  display_name = "Acceptance Glossary"
+  description  = %q
+}
+`, name, description)
+}
+
+func testAccGlossaryConfigExclusive(name, description string) string {
 	return fmt.Sprintf(`
 resource "openmetadata_glossary" "test" {
   name               = %q
