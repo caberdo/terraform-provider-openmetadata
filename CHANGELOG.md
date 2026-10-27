@@ -32,6 +32,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   `spreadsheet`, `worksheet` and `document` resources and data sources,
   including directory/file parent resolution and worksheet spreadsheet
   derivation.
+- Wave 7 API assets: `api_service`, `api_collection` and `api_endpoint`
+  resources and data sources, including collection/endpoint fully-qualified-name
+  derivation and sensitive JSON connector configuration.
 - `openmetadata_document` uses the REST `DELETE /api/v1/docStore/{id}` endpoint
   via the raw delete helper because the SDK exposes no `Delete`; destroy is a
   hard delete on the server. Its `data` attribute is canonicalized JSON so

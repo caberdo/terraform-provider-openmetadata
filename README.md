@@ -19,9 +19,10 @@ are preserved rather than zeroed.
 > `messaging_service`, `topic`) and the wave 5 platform services
 > (`storage_service`, `container`, `ml_model_service`, `ml_model`,
 > `search_service`, `search_index`, `metadata_service`,
-> `security_service`), and the wave 6 drives and documents entities
+> `security_service`), the wave 6 drives and documents entities
 > (`drive_service`, `directory`, `file`, `spreadsheet`, `worksheet`,
-> `document`) are implemented. The remaining entities are tracked in
+> `document`) and the wave 7 API assets (`api_service`, `api_collection`,
+> `api_endpoint`) are implemented. The remaining entities are tracked in
 > [TASKS.md](TASKS.md) and in the wave epics on GitHub.
 
 ## Requirements

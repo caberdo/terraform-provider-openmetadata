@@ -33,6 +33,9 @@ func TestProviderRegistersAllTypes(t *testing.T) {
 	p := New("dev")()
 
 	want := map[string]bool{
+		"openmetadata_api_collection":       false,
+		"openmetadata_api_endpoint":         false,
+		"openmetadata_api_service":          false,
 		"openmetadata_chart":                false,
 		"openmetadata_classification":       false,
 		"openmetadata_container":            false,

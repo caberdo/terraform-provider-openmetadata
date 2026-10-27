@@ -17,6 +17,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 
 	"github.com/caberdo/terraform-provider-openmetadata/internal/client"
+	apicollectiondatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/api_collection"
+	apiendpointdatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/api_endpoint"
+	apiservicedatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/api_service"
 	chartdatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/chart"
 	classificationdatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/classification"
 	containerdatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/container"
@@ -53,6 +56,9 @@ import (
 	topicdatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/topic"
 	worksheetdatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/worksheet"
 	"github.com/caberdo/terraform-provider-openmetadata/internal/providerdata"
+	apicollectionresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/api_collection"
+	apiendpointresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/api_endpoint"
+	apiserviceresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/api_service"
 	chartresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/chart"
 	classificationresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/classification"
 	containerresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/container"
@@ -211,6 +217,9 @@ func (p *OpenMetadataProvider) Configure(ctx context.Context, req provider.Confi
 // so parallel contributors insert in predictable places.
 func (p *OpenMetadataProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
+		apicollectionresource.NewResource,
+		apiendpointresource.NewResource,
+		apiserviceresource.NewResource,
 		chartresource.NewResource,
 		classificationresource.NewResource,
 		containerresource.NewResource,
@@ -252,6 +261,9 @@ func (p *OpenMetadataProvider) Resources(_ context.Context) []func() resource.Re
 // DataSources returns the data source factories, sorted alphabetically.
 func (p *OpenMetadataProvider) DataSources(_ context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
+		apicollectiondatasource.NewDataSource,
+		apiendpointdatasource.NewDataSource,
+		apiservicedatasource.NewDataSource,
 		chartdatasource.NewDataSource,
 		classificationdatasource.NewDataSource,
 		containerdatasource.NewDataSource,
