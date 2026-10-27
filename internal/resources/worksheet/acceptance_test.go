@@ -42,7 +42,7 @@ func TestAccWorksheet_basic(t *testing.T) {
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "display_name", "Acceptance Worksheet"),
 					resource.TestCheckResourceAttr(resourceName, "description", "Updated description"),
-					resource.TestCheckResourceAttr(resourceName, "spreadsheet", name+".budget"),
+					resource.TestCheckResourceAttr(resourceName, "spreadsheet", name+"."+name+"-budget"),
 				),
 			},
 			{
