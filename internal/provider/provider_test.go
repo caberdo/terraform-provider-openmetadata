@@ -43,7 +43,11 @@ func TestProviderRegistersAllTypes(t *testing.T) {
 		"openmetadata_database":             false,
 		"openmetadata_database_schema":      false,
 		"openmetadata_database_service":     false,
+		"openmetadata_directory":            false,
+		"openmetadata_document":             false,
 		"openmetadata_domain":               false,
+		"openmetadata_drive_service":        false,
+		"openmetadata_file":                 false,
 		"openmetadata_glossary":             false,
 		"openmetadata_glossary_term":        false,
 		"openmetadata_messaging_service":    false,
@@ -57,11 +61,13 @@ func TestProviderRegistersAllTypes(t *testing.T) {
 		"openmetadata_search_index":         false,
 		"openmetadata_search_service":       false,
 		"openmetadata_security_service":     false,
+		"openmetadata_spreadsheet":          false,
 		"openmetadata_storage_service":      false,
 		"openmetadata_stored_procedure":     false,
 		"openmetadata_table":                false,
 		"openmetadata_tag":                  false,
 		"openmetadata_topic":                false,
+		"openmetadata_worksheet":            false,
 	}
 
 	resources := p.Resources(ctx)
