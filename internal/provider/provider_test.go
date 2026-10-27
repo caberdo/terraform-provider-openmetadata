@@ -73,6 +73,19 @@ func TestProviderRegistersAllTypes(t *testing.T) {
 		"openmetadata_worksheet":            false,
 	}
 
+	for _, name := range []string{
+		"openmetadata_data_contract",
+		"openmetadata_event_subscription",
+		"openmetadata_ingestion_pipeline",
+		"openmetadata_notification_template",
+		"openmetadata_test_case",
+		"openmetadata_test_definition",
+		"openmetadata_test_suite",
+		"openmetadata_workflow_definition",
+	} {
+		want[name] = false
+	}
+
 	resources := p.Resources(ctx)
 	if len(resources) != len(want) {
 		t.Fatalf("Resources() returned %d factories, want %d", len(resources), len(want))

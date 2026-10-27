@@ -84,10 +84,45 @@ Rules that keep parallel pull requests mergeable:
 | `make fmt` / `make vet` | formatting and vet |
 | `make validate-examples` | `terraform fmt`/`validate` every example |
 | `make generate` | regenerate `docs/` with `tfplugindocs` |
-| `make testacc-docker` | acceptance suite against OpenMetadata in Docker |
+| `make testacc-docker` | acceptance suite against OpenMetadata in Docker or Podman |
 | `make testacc-down` | remove the acceptance stack and its volumes |
 | `make release-check` | validate the GoReleaser configuration |
 | `make release-snapshot` | build every release platform into `dist/` |
+
+### Acceptance tests without Docker
+
+`make testacc-docker` defaults to `docker compose`. When Docker is not
+installed, use Podman instead:
+
+```sh
+podman machine start                  # macOS; run `podman machine init` once
+make testacc-docker COMPOSE=podman-compose
+make testacc-down COMPOSE=podman-compose
+```
+
+Podman 4.6+ and podman-compose 1.6+ implement the health and completion
+conditions this stack relies on. The first run pulls the server, PostgreSQL and
+Elasticsearch images; later runs reuse them.
+
+To run the suite from the host against the published server port instead of the
+`test` container:
+
+```sh
+export OPENMETADATA_VERSION=$(tr -d '[:space:]' < .github/openmetadata-version.txt)
+podman-compose up -d postgresql elasticsearch
+podman-compose run --rm migrate
+podman-compose up -d openmetadata-server
+
+TF_ACC=1 OPENMETADATA_HOST=http://127.0.0.1:8585 \
+  OPENMETADATA_USERNAME=admin@open-metadata.org \
+  OPENMETADATA_PASSWORD=admin \
+  OPENMETADATA_EXPECT_VERSION=$OPENMETADATA_VERSION \
+  go test -count=1 -timeout 30m ./internal/...
+
+podman-compose down -v
+```
+
+Both paths run the same tests and use the same pinned server version.
 
 ## Rules
 

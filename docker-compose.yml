@@ -3,12 +3,13 @@
 # .github/openmetadata-version.txt; the Makefile and CI export it as
 # OPENMETADATA_VERSION so image tags and the expected /system/version agree.
 #
-# Runs in the compose network, against the pinned server. Docker Compose v2 is
-# required for the health- and completion-based dependencies; Podman users can
-# point Docker Compose at the Podman socket.
+# Runs in the compose network, against the pinned server. Docker Compose v2 or
+# Podman with podman-compose 1.6+ is required for the health- and
+# completion-based dependencies.
 #
-#   make testacc-docker        # run the suite
-#   make testacc-down          # remove the stack and its volumes
+#   make testacc-docker                          # run the suite
+#   make testacc-docker COMPOSE=podman-compose   # same, using Podman
+#   make testacc-down                            # remove the stack and volumes
 name: terraform-provider-openmetadata
 
 x-openmetadata-environment: &openmetadata-environment

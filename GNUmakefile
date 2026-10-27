@@ -7,8 +7,8 @@ VERSION=$(shell git describe --tags --always --dirty 2>/dev/null || echo "dev")
 # file, not this variable, when moving to a new release.
 OPENMETADATA_VERSION ?= $(shell tr -d '[:space:]' < .github/openmetadata-version.txt)
 # Compose implementation. The stack depends on health- and completion-based
-# conditions, which podman-compose does not implement, so Docker Compose v2 is
-# required. Podman users can point it at the Podman socket via DOCKER_HOST.
+# conditions, which need Docker Compose v2 or podman-compose 1.6+. Override with
+# `make testacc-docker COMPOSE=podman-compose` when Docker is unavailable.
 COMPOSE ?= docker compose
 
 build:
