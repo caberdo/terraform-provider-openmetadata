@@ -28,6 +28,14 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   `ml_model_service`, `ml_model`, `search_service`, `search_index`,
   `metadata_service` and `security_service` resources and data sources,
   including container parent resolution and search index field management.
+- Wave 6 drives and documents: `drive_service`, `directory`, `file`,
+  `spreadsheet`, `worksheet` and `document` resources and data sources,
+  including directory/file parent resolution and worksheet spreadsheet
+  derivation.
+- `openmetadata_document` uses the REST `DELETE /api/v1/docStore/{id}` endpoint
+  via the raw delete helper because the SDK exposes no `Delete`; destroy is a
+  hard delete on the server. Its `data` attribute is canonicalized JSON so
+  `jsonencode()` configuration does not drift.
 - A narrow raw `DELETE` helper in `internal/client` for domains and data
   products. The Go SDK exposes no `Delete` for those services even though the
   REST API supports a permanent delete.

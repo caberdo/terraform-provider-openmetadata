@@ -27,7 +27,11 @@ import (
 	databasedatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/database"
 	databaseschemadatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/database_schema"
 	databaseservicedatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/database_service"
+	directorydatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/directory"
+	documentdatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/document"
 	domaindatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/domain"
+	driveservicedatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/drive_service"
+	filedatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/file"
 	glossarydatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/glossary"
 	glossarytermdatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/glossary_term"
 	messagingservicedatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/messaging_service"
@@ -41,11 +45,13 @@ import (
 	searchindexdatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/search_index"
 	searchservicedatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/search_service"
 	securityservicedatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/security_service"
+	spreadsheetdatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/spreadsheet"
 	storageservicedatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/storage_service"
 	storedproceduredatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/stored_procedure"
 	tabledatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/table"
 	tagdatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/tag"
 	topicdatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/topic"
+	worksheetdatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/worksheet"
 	"github.com/caberdo/terraform-provider-openmetadata/internal/providerdata"
 	chartresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/chart"
 	classificationresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/classification"
@@ -57,7 +63,11 @@ import (
 	databaseresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/database"
 	databaseschemaresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/database_schema"
 	databaseserviceresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/database_service"
+	directoryresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/directory"
+	documentresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/document"
 	domainresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/domain"
+	driveserviceresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/drive_service"
+	fileresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/file"
 	glossaryresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/glossary"
 	glossarytermresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/glossary_term"
 	messagingserviceresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/messaging_service"
@@ -71,11 +81,13 @@ import (
 	searchindexresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/search_index"
 	searchserviceresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/search_service"
 	securityserviceresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/security_service"
+	spreadsheetresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/spreadsheet"
 	storageserviceresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/storage_service"
 	storedprocedureresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/stored_procedure"
 	tableresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/table"
 	tagresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/tag"
 	topicresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/topic"
+	worksheetresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/worksheet"
 )
 
 // providerTypeName is the Terraform provider type name: the prefix of every
@@ -209,7 +221,11 @@ func (p *OpenMetadataProvider) Resources(_ context.Context) []func() resource.Re
 		databaseresource.NewResource,
 		databaseschemaresource.NewResource,
 		databaseserviceresource.NewResource,
+		directoryresource.NewResource,
+		documentresource.NewResource,
 		domainresource.NewResource,
+		driveserviceresource.NewResource,
+		fileresource.NewResource,
 		glossaryresource.NewResource,
 		glossarytermresource.NewResource,
 		messagingserviceresource.NewResource,
@@ -223,11 +239,13 @@ func (p *OpenMetadataProvider) Resources(_ context.Context) []func() resource.Re
 		searchindexresource.NewResource,
 		searchserviceresource.NewResource,
 		securityserviceresource.NewResource,
+		spreadsheetresource.NewResource,
 		storageserviceresource.NewResource,
 		storedprocedureresource.NewResource,
 		tableresource.NewResource,
 		tagresource.NewResource,
 		topicresource.NewResource,
+		worksheetresource.NewResource,
 	}
 }
 
@@ -244,7 +262,11 @@ func (p *OpenMetadataProvider) DataSources(_ context.Context) []func() datasourc
 		databasedatasource.NewDataSource,
 		databaseschemadatasource.NewDataSource,
 		databaseservicedatasource.NewDataSource,
+		directorydatasource.NewDataSource,
+		documentdatasource.NewDataSource,
 		domaindatasource.NewDataSource,
+		driveservicedatasource.NewDataSource,
+		filedatasource.NewDataSource,
 		glossarydatasource.NewDataSource,
 		glossarytermdatasource.NewDataSource,
 		messagingservicedatasource.NewDataSource,
@@ -258,11 +280,13 @@ func (p *OpenMetadataProvider) DataSources(_ context.Context) []func() datasourc
 		searchindexdatasource.NewDataSource,
 		searchservicedatasource.NewDataSource,
 		securityservicedatasource.NewDataSource,
+		spreadsheetdatasource.NewDataSource,
 		storageservicedatasource.NewDataSource,
 		storedproceduredatasource.NewDataSource,
 		tabledatasource.NewDataSource,
 		tagdatasource.NewDataSource,
 		topicdatasource.NewDataSource,
+		worksheetdatasource.NewDataSource,
 	}
 }
 
