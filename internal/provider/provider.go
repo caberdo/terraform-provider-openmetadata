@@ -26,6 +26,7 @@ import (
 	dashboarddatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/dashboard"
 	dashboarddatamodeldatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/dashboard_data_model"
 	dashboardservicedatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/dashboard_service"
+	datacontractdatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/data_contract"
 	dataproductdatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/data_product"
 	databasedatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/database"
 	databaseschemadatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/database_schema"
@@ -34,14 +35,17 @@ import (
 	documentdatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/document"
 	domaindatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/domain"
 	driveservicedatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/drive_service"
+	eventsubscriptiondatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/event_subscription"
 	filedatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/file"
 	glossarydatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/glossary"
 	glossarytermdatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/glossary_term"
+	ingestionpipelinedatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/ingestion_pipeline"
 	messagingservicedatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/messaging_service"
 	metadataservicedatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/metadata_service"
 	metricdatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/metric"
 	mlmodeldatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/ml_model"
 	mlmodelservicedatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/ml_model_service"
+	notificationtemplatedatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/notification_template"
 	pipelinedatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/pipeline"
 	pipelineservicedatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/pipeline_service"
 	querydatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/query"
@@ -53,7 +57,11 @@ import (
 	storedproceduredatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/stored_procedure"
 	tabledatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/table"
 	tagdatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/tag"
+	testcasedatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/test_case"
+	testdefinitiondatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/test_definition"
+	testsuitedatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/test_suite"
 	topicdatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/topic"
+	workflowdefinitiondatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/workflow_definition"
 	worksheetdatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/worksheet"
 	"github.com/caberdo/terraform-provider-openmetadata/internal/providerdata"
 	apicollectionresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/api_collection"
@@ -65,6 +73,7 @@ import (
 	dashboardresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/dashboard"
 	dashboarddatamodelresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/dashboard_data_model"
 	dashboardserviceresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/dashboard_service"
+	datacontractresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/data_contract"
 	dataproductresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/data_product"
 	databaseresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/database"
 	databaseschemaresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/database_schema"
@@ -73,14 +82,17 @@ import (
 	documentresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/document"
 	domainresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/domain"
 	driveserviceresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/drive_service"
+	eventsubscriptionresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/event_subscription"
 	fileresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/file"
 	glossaryresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/glossary"
 	glossarytermresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/glossary_term"
+	ingestionpipelineresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/ingestion_pipeline"
 	messagingserviceresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/messaging_service"
 	metadataserviceresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/metadata_service"
 	metricresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/metric"
 	mlmodelresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/ml_model"
 	mlmodelserviceresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/ml_model_service"
+	notificationtemplateresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/notification_template"
 	pipelineresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/pipeline"
 	pipelineserviceresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/pipeline_service"
 	queryresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/query"
@@ -92,7 +104,11 @@ import (
 	storedprocedureresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/stored_procedure"
 	tableresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/table"
 	tagresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/tag"
+	testcaseresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/test_case"
+	testdefinitionresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/test_definition"
+	testsuiteresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/test_suite"
 	topicresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/topic"
+	workflowdefinitionresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/workflow_definition"
 	worksheetresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/worksheet"
 )
 
@@ -226,6 +242,7 @@ func (p *OpenMetadataProvider) Resources(_ context.Context) []func() resource.Re
 		dashboardresource.NewResource,
 		dashboarddatamodelresource.NewResource,
 		dashboardserviceresource.NewResource,
+		datacontractresource.NewResource,
 		dataproductresource.NewResource,
 		databaseresource.NewResource,
 		databaseschemaresource.NewResource,
@@ -234,14 +251,17 @@ func (p *OpenMetadataProvider) Resources(_ context.Context) []func() resource.Re
 		documentresource.NewResource,
 		domainresource.NewResource,
 		driveserviceresource.NewResource,
+		eventsubscriptionresource.NewResource,
 		fileresource.NewResource,
 		glossaryresource.NewResource,
 		glossarytermresource.NewResource,
+		ingestionpipelineresource.NewResource,
 		messagingserviceresource.NewResource,
 		metadataserviceresource.NewResource,
 		metricresource.NewResource,
 		mlmodelresource.NewResource,
 		mlmodelserviceresource.NewResource,
+		notificationtemplateresource.NewResource,
 		pipelineresource.NewResource,
 		pipelineserviceresource.NewResource,
 		queryresource.NewResource,
@@ -253,7 +273,11 @@ func (p *OpenMetadataProvider) Resources(_ context.Context) []func() resource.Re
 		storedprocedureresource.NewResource,
 		tableresource.NewResource,
 		tagresource.NewResource,
+		testcaseresource.NewResource,
+		testdefinitionresource.NewResource,
+		testsuiteresource.NewResource,
 		topicresource.NewResource,
+		workflowdefinitionresource.NewResource,
 		worksheetresource.NewResource,
 	}
 }
@@ -270,6 +294,7 @@ func (p *OpenMetadataProvider) DataSources(_ context.Context) []func() datasourc
 		dashboarddatasource.NewDataSource,
 		dashboarddatamodeldatasource.NewDataSource,
 		dashboardservicedatasource.NewDataSource,
+		datacontractdatasource.NewDataSource,
 		dataproductdatasource.NewDataSource,
 		databasedatasource.NewDataSource,
 		databaseschemadatasource.NewDataSource,
@@ -278,14 +303,17 @@ func (p *OpenMetadataProvider) DataSources(_ context.Context) []func() datasourc
 		documentdatasource.NewDataSource,
 		domaindatasource.NewDataSource,
 		driveservicedatasource.NewDataSource,
+		eventsubscriptiondatasource.NewDataSource,
 		filedatasource.NewDataSource,
 		glossarydatasource.NewDataSource,
 		glossarytermdatasource.NewDataSource,
+		ingestionpipelinedatasource.NewDataSource,
 		messagingservicedatasource.NewDataSource,
 		metadataservicedatasource.NewDataSource,
 		metricdatasource.NewDataSource,
 		mlmodeldatasource.NewDataSource,
 		mlmodelservicedatasource.NewDataSource,
+		notificationtemplatedatasource.NewDataSource,
 		pipelinedatasource.NewDataSource,
 		pipelineservicedatasource.NewDataSource,
 		querydatasource.NewDataSource,
@@ -297,7 +325,11 @@ func (p *OpenMetadataProvider) DataSources(_ context.Context) []func() datasourc
 		storedproceduredatasource.NewDataSource,
 		tabledatasource.NewDataSource,
 		tagdatasource.NewDataSource,
+		testcasedatasource.NewDataSource,
+		testdefinitiondatasource.NewDataSource,
+		testsuitedatasource.NewDataSource,
 		topicdatasource.NewDataSource,
+		workflowdefinitiondatasource.NewDataSource,
 		worksheetdatasource.NewDataSource,
 	}
 }
