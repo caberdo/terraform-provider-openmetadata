@@ -126,7 +126,19 @@ services:
         set -e
         go mod download
         go mod verify
-        go test -v -count=1 -timeout 30m ./internal/...
+        # Coverage is collected here because the unit suite alone under-reports
+        # packages whose behaviour is asserted end-to-end against a real server.
+        # The profile lands in the mounted worktree, where `make coverage-merge`
+        # and the acceptance job pick it up.
+        status=0
+        go test -v -count=1 -timeout 30m \
+          -covermode=atomic -coverprofile=/app/coverage-acceptance.out \
+          -coverpkg=./internal/... ./internal/... || status=$$?
+        if [ -f coverage-acceptance.out ]; then
+          echo "Acceptance coverage (covered statements, ./internal/...):"
+          go tool cover -func=coverage-acceptance.out | tail -1
+        fi
+        exit $$status
     depends_on:
       openmetadata-server:
         condition: service_healthy

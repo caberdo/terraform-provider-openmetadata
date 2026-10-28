@@ -32,6 +32,8 @@ Requirements:
 ```bash
 make build
 make test
+make coverage
+make coverage-gate
 make lint
 make vet
 make validate-examples
@@ -104,7 +106,7 @@ CI must be green. The required contexts on `main` are:
 | `Lint & Security` | `lint` | golangci-lint and gosec |
 | `Test` | `test` | build, vet, `go mod tidy`, cross-platform build, example validation and the race-enabled unit suite |
 | `Docs` | `docs` | `go generate ./...` leaves `docs/` unchanged |
-| `Acceptance` | `acceptance` | the compose stack against the pinned OpenMetadata version |
+| `Acceptance` | `acceptance` | the compose stack against the pinned OpenMetadata version, plus combined unit and acceptance coverage |
 
 `main` is protected by the `protect-main` repository ruleset: those four
 contexts, a linear history, no force pushes or deletions, a merge queue and no
@@ -118,6 +120,28 @@ Run `./scripts/check-branch-protection.sh` to verify the live ruleset and
 the repository). The weekly **Branch Protection Drift** workflow runs the same
 check and opens an issue on drift; it needs a `BRANCH_PROTECTION_TOKEN` secret
 with administration read permission.
+
+## Coverage floors
+
+`scripts/coverage-gate.sh` enforces two things on the unit profile
+(`coverage.out`):
+
+- the module total against `.github/coverage-baseline.txt`, which the README
+  badge tracks;
+- every package returned by `go list ./internal/...` against its entry in
+  `.github/coverage-floors.txt`, or that file's `default` floor.
+
+The package list is discovered, so a new `internal/resources/*` or
+`internal/datasources/*` package is gated the moment it exists; a package with
+no tests measures 0% and fails. The gate prints every package it checked and
+names each one below its floor with the delta.
+
+To **raise** a floor: improve coverage, run `make coverage`, then edit the
+package's line. To **lower** one: do it in the same pull request as the change
+that dropped coverage and explain why in the pull request. Lowering a floor
+without that justification is a review finding. `make coverage-gate` checks the
+current `coverage.out`, and `make coverage-readme-check` fails when the README
+badge has drifted from the baseline.
 
 ## Release
 

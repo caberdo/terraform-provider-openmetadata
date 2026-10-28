@@ -53,6 +53,9 @@ Provider and resource documentation is generated into [`docs/`](docs/index.md).
 make build             # build bin/terraform-provider-openmetadata
 make test              # unit tests
 make test-race         # unit tests with the race detector
+make coverage          # unit coverage profile and summary (coverage.out)
+make coverage-gate     # fail below .github/coverage-baseline.txt or a package floor
+make coverage-readme   # rewrite the coverage badge from the baseline
 make lint              # golangci-lint (config at .golangci.yml)
 make vet               # go vet
 make generate          # regenerate docs/ with tfplugindocs
@@ -74,6 +77,20 @@ The compose stack pins the server through `OPENMETADATA_VERSION`, which defaults
 to the contents of `.github/openmetadata-versions.txt`. The suite asserts the
 server's `/system/version` matches that pin before running, so a stale image
 fails at the precheck rather than in a confusing capability error.
+
+## Coverage
+
+<!-- coverage:start -->
+![Coverage floor](https://img.shields.io/badge/coverage%20floor-33%25-green)
+
+The coverage gate fails below **33%** (`./scripts/coverage-gate.sh`).
+<!-- coverage:end -->
+
+`make coverage` writes the unit profile to `coverage.out`; `make coverage-gate`
+enforces both the module floor in `.github/coverage-baseline.txt` and the
+per-package floors in `.github/coverage-floors.txt`. Acceptance coverage is
+merged with the unit profile by `make coverage-merge` and reported by CI, but it
+is not gated because it needs a live server.
 
 ## Releases
 

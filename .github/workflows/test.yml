@@ -118,7 +118,35 @@ jobs:
         run: ./scripts/validate-examples.sh
 
       - name: Run tests with the race detector
-        run: go test -v -race -covermode=atomic -coverprofile=coverage.out ./...
+        run: go test -v -race -covermode=atomic -coverprofile=coverage.out ./internal/...
+
+      - name: Coverage summary
+        if: always()
+        run: |
+          if [[ ! -f coverage.out ]]; then
+            echo "No coverage profile: the test step failed before writing one." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          {
+            echo "## Coverage"
+            echo ""
+            echo "Unit tests only: acceptance tests require \`TF_ACC\` and a live OpenMetadata server."
+            echo ""
+            ./scripts/coverage-summary.sh coverage.out
+          } >> "$GITHUB_STEP_SUMMARY"
+          ./scripts/coverage-summary.sh coverage.out
+
+      # Enforce the coverage floor on every pull request: the `Test` job is a
+      # required context, so a regression below .github/coverage-baseline.txt
+      # fails the PR instead of only surfacing on main/merge-queue.
+      - name: Coverage gate (unit)
+        if: always()
+        run: ./scripts/coverage-gate.sh coverage.out
+
+      # The badge and floor statement in README.md must track the same baseline
+      # the gate enforces; `make coverage-readme` rewrites them.
+      - name: Coverage README is in sync
+        run: ./scripts/coverage-readme.sh --check
 
       - name: Upload coverage report
         if: always()
@@ -172,6 +200,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
+      - name: Set up Go
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: "go.mod"
+          cache: true
+
+      # The acceptance container writes coverage-acceptance.out into the mounted
+      # worktree; the unit profile is produced here so both can be merged into
+      # the one statement-coverage number the project publishes.
+      - name: Unit-test coverage
+        run: go test -count=1 -skip '^TestAcc' -covermode=atomic -coverprofile=coverage.out ./internal/...
+
       # The image tags and the expected /system/version value all come from one
       # file, so a version bump cannot update some of them and miss the others.
       - name: Read the pinned OpenMetadata version
@@ -202,3 +242,33 @@ jobs:
       - name: Tear down the acceptance environment
         if: always()
         run: docker compose down -v
+
+      - name: Combined coverage (unit + acceptance)
+        if: always()
+        run: |
+          if [[ ! -f coverage.out || ! -f coverage-acceptance.out ]]; then
+            echo "Incomplete coverage profiles: unit \`coverage.out\` and acceptance" >> "$GITHUB_STEP_SUMMARY"
+            echo "\`coverage-acceptance.out\` are both required; one is missing." >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
+          ./scripts/merge-coverage.sh coverage-union.out coverage.out coverage-acceptance.out
+          {
+            echo "## Coverage (unit + acceptance)"
+            echo ""
+            echo "\`coverage.out\` and \`coverage-acceptance.out\` merged by \`scripts/merge-coverage.sh\`."
+            echo ""
+            ./scripts/coverage-summary.sh coverage-union.out
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      # Acceptance coverage is reported, not gated: it depends on Docker and a
+      # live server, so the enforced floor is the unit profile produced by the
+      # `Test` job.
+      - name: Upload combined coverage
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: coverage-acceptance
+          path: |
+            coverage-acceptance.out
+            coverage-union.out
+          if-no-files-found: ignore
