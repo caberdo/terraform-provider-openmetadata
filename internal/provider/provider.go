@@ -22,6 +22,7 @@ import (
 	apicollectiondatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/api_collection"
 	apiendpointdatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/api_endpoint"
 	apiservicedatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/api_service"
+	botdatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/bot"
 	chartdatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/chart"
 	classificationdatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/classification"
 	containerdatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/container"
@@ -51,10 +52,13 @@ import (
 	mlmodeldatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/ml_model"
 	mlmodelservicedatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/ml_model_service"
 	notificationtemplatedatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/notification_template"
+	personadatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/persona"
 	pipelinedatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/pipeline"
 	pipelineservicedatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/pipeline_service"
+	policydatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/policy"
 	prompttemplatedatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/prompt_template"
 	querydatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/query"
+	roledatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/role"
 	searchindexdatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/search_index"
 	searchservicedatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/search_service"
 	securityservicedatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/security_service"
@@ -63,10 +67,12 @@ import (
 	storedproceduredatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/stored_procedure"
 	tabledatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/table"
 	tagdatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/tag"
+	teamdatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/team"
 	testcasedatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/test_case"
 	testdefinitiondatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/test_definition"
 	testsuitedatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/test_suite"
 	topicdatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/topic"
+	userdatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/user"
 	workflowdefinitiondatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/workflow_definition"
 	worksheetdatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/worksheet"
 	"github.com/caberdo/terraform-provider-openmetadata/internal/providerdata"
@@ -75,6 +81,7 @@ import (
 	apicollectionresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/api_collection"
 	apiendpointresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/api_endpoint"
 	apiserviceresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/api_service"
+	botresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/bot"
 	chartresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/chart"
 	classificationresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/classification"
 	containerresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/container"
@@ -104,10 +111,13 @@ import (
 	mlmodelresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/ml_model"
 	mlmodelserviceresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/ml_model_service"
 	notificationtemplateresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/notification_template"
+	personaresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/persona"
 	pipelineresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/pipeline"
 	pipelineserviceresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/pipeline_service"
+	policyresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/policy"
 	prompttemplateresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/prompt_template"
 	queryresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/query"
+	roleresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/role"
 	searchindexresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/search_index"
 	searchserviceresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/search_service"
 	securityserviceresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/security_service"
@@ -116,10 +126,12 @@ import (
 	storedprocedureresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/stored_procedure"
 	tableresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/table"
 	tagresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/tag"
+	teamresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/team"
 	testcaseresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/test_case"
 	testdefinitionresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/test_definition"
 	testsuiteresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/test_suite"
 	topicresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/topic"
+	userresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/user"
 	workflowdefinitionresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/workflow_definition"
 	worksheetresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/worksheet"
 )
@@ -250,6 +262,7 @@ func (p *OpenMetadataProvider) Resources(_ context.Context) []func() resource.Re
 		apicollectionresource.NewResource,
 		apiendpointresource.NewResource,
 		apiserviceresource.NewResource,
+		botresource.NewResource,
 		chartresource.NewResource,
 		classificationresource.NewResource,
 		containerresource.NewResource,
@@ -279,10 +292,13 @@ func (p *OpenMetadataProvider) Resources(_ context.Context) []func() resource.Re
 		mlmodelresource.NewResource,
 		mlmodelserviceresource.NewResource,
 		notificationtemplateresource.NewResource,
+		personaresource.NewResource,
 		pipelineresource.NewResource,
 		pipelineserviceresource.NewResource,
+		policyresource.NewResource,
 		prompttemplateresource.NewResource,
 		queryresource.NewResource,
+		roleresource.NewResource,
 		searchindexresource.NewResource,
 		searchserviceresource.NewResource,
 		securityserviceresource.NewResource,
@@ -291,10 +307,12 @@ func (p *OpenMetadataProvider) Resources(_ context.Context) []func() resource.Re
 		storedprocedureresource.NewResource,
 		tableresource.NewResource,
 		tagresource.NewResource,
+		teamresource.NewResource,
 		testcaseresource.NewResource,
 		testdefinitionresource.NewResource,
 		testsuiteresource.NewResource,
 		topicresource.NewResource,
+		userresource.NewResource,
 		workflowdefinitionresource.NewResource,
 		worksheetresource.NewResource,
 	}
@@ -308,6 +326,7 @@ func (p *OpenMetadataProvider) DataSources(_ context.Context) []func() datasourc
 		apicollectiondatasource.NewDataSource,
 		apiendpointdatasource.NewDataSource,
 		apiservicedatasource.NewDataSource,
+		botdatasource.NewDataSource,
 		chartdatasource.NewDataSource,
 		classificationdatasource.NewDataSource,
 		containerdatasource.NewDataSource,
@@ -337,10 +356,13 @@ func (p *OpenMetadataProvider) DataSources(_ context.Context) []func() datasourc
 		mlmodeldatasource.NewDataSource,
 		mlmodelservicedatasource.NewDataSource,
 		notificationtemplatedatasource.NewDataSource,
+		personadatasource.NewDataSource,
 		pipelinedatasource.NewDataSource,
 		pipelineservicedatasource.NewDataSource,
+		policydatasource.NewDataSource,
 		prompttemplatedatasource.NewDataSource,
 		querydatasource.NewDataSource,
+		roledatasource.NewDataSource,
 		searchindexdatasource.NewDataSource,
 		searchservicedatasource.NewDataSource,
 		securityservicedatasource.NewDataSource,
@@ -349,10 +371,12 @@ func (p *OpenMetadataProvider) DataSources(_ context.Context) []func() datasourc
 		storedproceduredatasource.NewDataSource,
 		tabledatasource.NewDataSource,
 		tagdatasource.NewDataSource,
+		teamdatasource.NewDataSource,
 		testcasedatasource.NewDataSource,
 		testdefinitiondatasource.NewDataSource,
 		testsuitedatasource.NewDataSource,
 		topicdatasource.NewDataSource,
+		userdatasource.NewDataSource,
 		workflowdefinitiondatasource.NewDataSource,
 		worksheetdatasource.NewDataSource,
 	}
