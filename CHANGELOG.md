@@ -40,6 +40,14 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   `notification_template` and `workflow_definition` resources and data sources,
   including table and service UUID references for test cases and ingestion
   pipelines, and the default `noOp` workflow trigger.
+- Wave 9 access and organisation: `user`, `team`, `policy`, `role`, `bot` and
+  `persona` resources and data sources, including bot-user JWT provisioning,
+  team hierarchy and default roles, policy rules, and the reference
+  relationships between users, teams, roles, policies and personas. Reference
+  collections are sets because OpenMetadata returns them sorted.
+- `openmetadata_persona` uses the REST `DELETE /api/v1/personas/{id}` endpoint
+  via the raw delete helper because the SDK exposes no `Delete`; destroy is a
+  hard delete on the server.
 - `openmetadata_event_subscription` uses the REST
   `DELETE /api/v1/events/subscriptions/{id}` endpoint with `hardDelete` and
   `recursive` because the SDK exposes no `Delete`; destroy is a hard delete on
