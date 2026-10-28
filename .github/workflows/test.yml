@@ -16,9 +16,12 @@ concurrency:
 
 jobs:
   lint:
-    name: Lint
+    name: Lint & Security
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    permissions:
+      contents: read
+      security-events: write
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -35,11 +38,74 @@ jobs:
           version: v2.15.0
           args: --config .golangci.yml
 
+      # gosec v2.30.0 requires Go 1.26; setup-go pins GOTOOLCHAIN=local and the
+      # module declares Go 1.25.8, so use the newest gosec that builds with the
+      # module toolchain instead of letting the scanner drift ahead of it.
+      - name: Run Gosec Security Scanner
+        id: gosec
+        continue-on-error: true
+        run: |
+          go run github.com/securego/gosec/v2/cmd/gosec@v2.29.0 \
+            -fmt sarif -out gosec.sarif -exclude-dir=vendor -tests=false ./
+
+      - name: Upload security scan results
+        uses: github/codeql-action/upload-sarif@9b3254085494b55a0f7c4c2b3d2d52cc712ce370 # v4.39.1
+        if: always() && hashFiles('gosec.sarif') != ''
+        with:
+          sarif_file: gosec.sarif
+
+      - name: Fail on Gosec findings
+        if: always() && steps.gosec.outcome == 'failure'
+        run: |
+          {
+            echo "## Gosec Security Scanner Found Issues"
+            echo ""
+            if [ -f gosec.sarif ]; then
+              echo "| Rule | File | Line | Description |"
+              echo "|------|------|------|-------------|"
+              jq -r '.runs[0].results[] | "| \(.ruleId) | \(.locations[0].physicalLocation.artifactLocation.uri) | \(.locations[0].physicalLocation.region.startLine) | \(.message.text) |"' gosec.sarif
+            fi
+            echo ""
+            echo "See the **Security** tab for full details."
+          } >> "$GITHUB_STEP_SUMMARY"
+          exit 1
+
+  # The Trino provider matrixes acceptance over server versions. OpenMetadata is
+  # pinned to one version in .github/openmetadata-version.txt, so the only
+  # dimension worth matrixing is Go, and there is exactly one supported version:
+  # the one go.mod declares.
+  prepare:
+    name: Prepare Go Matrix
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      versions: ${{ steps.read.outputs.versions }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Read the Go version into a JSON array
+        id: read
+        run: |
+          version="$(awk '$1 == "go" { print $2; exit }' go.mod)"
+          if [[ -z "$version" ]]; then
+            echo "no go directive found in go.mod" >&2
+            exit 1
+          fi
+          echo "versions=[\"$version\"]" >> "$GITHUB_OUTPUT"
+          echo "Matrix: Go $version"
+
   test:
     name: Test
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    needs: lint
+    needs:
+      - lint
+      - prepare
+    strategy:
+      fail-fast: false
+      matrix:
+        go: ${{ fromJSON(needs.prepare.outputs.versions) }}
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -47,7 +113,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
-          go-version-file: "go.mod"
+          go-version: ${{ matrix.go }}
           cache: true
 
       - name: Build and vet
@@ -77,15 +143,8 @@ jobs:
           REQUIRE_TERRAFORM: "1"
         run: ./scripts/validate-examples.sh
 
-      - name: Check generated docs are up to date
-        run: |
-          go generate ./...
-          git diff --exit-code -- docs/
-          # A new entity adds a new file under docs/; git diff does not see it.
-          test -z "$(git status --porcelain -- docs/)"
-
       - name: Run tests with the race detector
-        run: go test -v -race -covermode=atomic -coverprofile=coverage.out ./internal/...
+        run: go test -v -race -covermode=atomic -coverprofile=coverage.out ./...
 
       - name: Upload coverage report
         if: always()
@@ -94,6 +153,36 @@ jobs:
           name: coverage
           path: coverage.out
           if-no-files-found: ignore
+
+  docs:
+    name: Docs
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Go
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: "go.mod"
+          cache: true
+
+      # tfplugindocs reads the provider schema through terraform.
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4.0.1
+        with:
+          terraform_version: "~> 1.9"
+          terraform_wrapper: false
+
+      - name: Regenerate documentation
+        run: go generate ./...
+
+      - name: Check generated docs are committed
+        run: |
+          git diff --exit-code -- docs/
+          # A new entity adds a new file under docs/; git diff does not see it.
+          test -z "$(git status --porcelain -- docs/)"
 
   acceptance:
     name: Acceptance
