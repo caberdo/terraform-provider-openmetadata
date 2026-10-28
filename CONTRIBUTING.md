@@ -44,14 +44,28 @@ make generate
 - Do not hand-edit `docs/`; run `make generate` and commit the result.
 - `go.mod`/`go.sum` changes need the lead's approval.
 - Fill in the scope / owned paths section of the pull request template.
-- CI must be green: `Lint`, `Test` (build, vet, cross-platform build, generated
-  docs diff, example validation and the race-enabled unit suite) and
-  `Acceptance` (the compose stack against the pinned OpenMetadata version).
 
-`main` should be protected with those three contexts required, a linear history
-and no force pushes. A job `name:` is the required context, so renaming one is a
-breaking CI change: update `.github/workflows/test.yml` and the repository
-protection together.
+CI must be green. The required contexts on `main` are:
+
+| Context | Job | Covers |
+|---|---|---|
+| `Lint & Security` | `lint` | golangci-lint and gosec |
+| `Test` | `test` | build, vet, `go mod tidy`, cross-platform build, example validation and the race-enabled unit suite |
+| `Docs` | `docs` | `go generate ./...` leaves `docs/` unchanged |
+| `Acceptance` | `acceptance` | the compose stack against the pinned OpenMetadata version |
+
+`main` is protected by the `protect-main` repository ruleset: those four
+contexts, a linear history, no force pushes or deletions, a merge queue and no
+bypass actors. A job `name:` is the required context, so renaming one is a
+breaking CI change: update `.github/workflows/test.yml`, the context list in
+`scripts/setup-branch-protection.sh` and `scripts/check-branch-protection.sh`,
+and the ruleset together.
+
+Run `./scripts/check-branch-protection.sh` to verify the live ruleset and
+`./scripts/setup-branch-protection.sh` to install or repair it (needs admin on
+the repository). The weekly **Branch Protection Drift** workflow runs the same
+check and opens an issue on drift; it needs a `BRANCH_PROTECTION_TOKEN` secret
+with administration read permission.
 
 ## Release
 

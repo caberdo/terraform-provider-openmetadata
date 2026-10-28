@@ -9,21 +9,12 @@ OpenMetadata. It owns no truth of its own: every read is an API call, every
 mutation is a create, patch or delete, and attributes the server cannot return
 are preserved rather than zeroed.
 
-> **Status:** early development. The module, tooling, CI and acceptance stack are
-> in place. The glossary reference slice, the wave 1 taxonomy entities
-> (`classification`, `tag`, `glossary_term`, `domain`, `data_product`, `metric`),
-> the wave 2 database entities (`database_service`, `database`, `database_schema`,
-> `table`, `stored_procedure`, `query`), the wave 3 BI entities (`chart`,
-> `dashboard`, `dashboard_data_model`, `dashboard_service`), the wave 4
-> pipeline and messaging entities (`pipeline_service`, `pipeline`,
-> `messaging_service`, `topic`) and the wave 5 platform services
-> (`storage_service`, `container`, `ml_model_service`, `ml_model`,
-> `search_service`, `search_index`, `metadata_service`,
-> `security_service`), the wave 6 drives and documents entities
-> (`drive_service`, `directory`, `file`, `spreadsheet`, `worksheet`,
-> `document`) and the wave 7 API assets (`api_service`, `api_collection`,
-> `api_endpoint`) are implemented. The remaining entities are tracked in
-> [TASKS.md](TASKS.md) and in the wave epics on GitHub.
+> **Status:** early development. The module, tooling, CI, acceptance stack and
+> release path are in place, and all ten waves in [TASKS.md](TASKS.md) are
+> implemented: 58 resources and 58 matching data sources, from the glossary
+> reference slice through taxonomy, databases, BI, pipelines, platform
+> services, drives, API assets, quality, access and AI. The API surface still
+> moves with the OpenMetadata server, so pin the provider version.
 
 ## Requirements
 

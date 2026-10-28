@@ -70,42 +70,16 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
           exit 1
 
-  # The Trino provider matrixes acceptance over server versions. OpenMetadata is
-  # pinned to one version in .github/openmetadata-version.txt, so the only
-  # dimension worth matrixing is Go, and there is exactly one supported version:
-  # the one go.mod declares.
-  prepare:
-    name: Prepare Go Matrix
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    outputs:
-      versions: ${{ steps.read.outputs.versions }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
-      - name: Read the Go version into a JSON array
-        id: read
-        run: |
-          version="$(awk '$1 == "go" { print $2; exit }' go.mod)"
-          if [[ -z "$version" ]]; then
-            echo "no go directive found in go.mod" >&2
-            exit 1
-          fi
-          echo "versions=[\"$version\"]" >> "$GITHUB_OUTPUT"
-          echo "Matrix: Go $version"
-
+  # One supported Go version: the one go.mod declares, read directly by
+  # setup-go. There is no matrix, so this job reports exactly one status check
+  # named "Test"; the main-protection ruleset requires that name, and a matrix
+  # would report "Test (<version>)" and silently stop matching after a Go bump.
   test:
     name: Test
     runs-on: ubuntu-latest
     timeout-minutes: 15
     needs:
       - lint
-      - prepare
-    strategy:
-      fail-fast: false
-      matrix:
-        go: ${{ fromJSON(needs.prepare.outputs.versions) }}
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -113,7 +87,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
-          go-version: ${{ matrix.go }}
+          go-version-file: "go.mod"
           cache: true
 
       - name: Build and vet
