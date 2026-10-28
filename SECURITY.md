@@ -5,7 +5,7 @@
 Security fixes are issued for the latest published provider release. The
 provider targets OpenMetadata 1.13 and later; the version the acceptance suite
 runs against is pinned in
-[`.github/openmetadata-version.txt`](.github/openmetadata-version.txt).
+[`.github/openmetadata-versions.txt`](.github/openmetadata-versions.txt).
 
 ## Reporting a vulnerability
 

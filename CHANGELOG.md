@@ -64,7 +64,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - CI: lint, race-enabled unit tests, cross-platform build, generated-doc drift,
   example validation and the acceptance suite in Docker Compose.
 - Acceptance stack: postgres, Elasticsearch, one-shot migration and the
-  OpenMetadata server, pinned by `.github/openmetadata-version.txt`.
+  OpenMetadata server, pinned by `.github/openmetadata-versions.txt`.
 - Release pipeline: GPG-signed GoReleaser archives for linux, darwin and windows
   on amd64 and arm64, registry manifest, build provenance and SBOM.
 - Community files: README, AGENTS, CONTRIBUTING, SECURITY, CODE_OF_CONDUCT,
