@@ -6,6 +6,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+## [0.1.0] - 2026-10-28
+
 ### Added
 
 - Module, provider configuration and the `openmetadata_glossary` resource and
@@ -85,3 +87,5 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - `openmetadata_glossary.mutually_exclusive` forces replacement instead of a
   patch: OpenMetadata keeps the value set at creation, so an in-place update
   produced an inconsistent result.
+
+[0.1.0]: https://github.com/caberdo/terraform-provider-openmetadata/releases/tag/v0.1.0
