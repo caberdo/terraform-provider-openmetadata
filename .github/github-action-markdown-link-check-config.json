@@ -1,0 +1,19 @@
+{
+  "ignorePatterns": [
+    {
+      "comment": "The Terraform registry, the Terraform language docs, the OpenMetadata project site and GitHub itself are repeated in every generated doc page; checking hundreds of copies adds no signal and invites rate limiting.",
+      "pattern": "^https?://(registry\\.terraform\\.io|developer\\.hashicorp\\.com|opentofu\\.org|open-metadata\\.org|github\\.com)"
+    },
+    {
+      "comment": "Placeholder hosts in the HCL examples (openmetadata.example.com and friends) are intentionally unresolvable, and 127.0.0.1:8585 is the acceptance server.",
+      "pattern": "^https?://([^/]*example\\.com|localhost|127\\.0\\.0\\.1)"
+    },
+    {
+      "pattern": "^https?://(api\\.securityscorecards\\.dev|scorecard\\.dev)"
+    },
+    {
+      "comment": "The badge URL contains the PROJECT_ID placeholder: it cannot resolve until the project is registered at bestpractices.dev.",
+      "pattern": "^https?://(www\\.)?bestpractices\\.dev/projects"
+    }
+  ]
+}
