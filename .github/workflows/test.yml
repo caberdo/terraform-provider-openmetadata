@@ -38,13 +38,14 @@ jobs:
           version: v2.15.0
           args: --config .golangci.yml
 
-      # Run gosec with the job's Go toolchain so the scanner and the module it
-      # checks use the same export data format.
+      # gosec v2.30.0 requires Go 1.26; setup-go pins GOTOOLCHAIN=local and the
+      # module declares Go 1.25.8, so use the newest gosec that builds with the
+      # module toolchain instead of letting the scanner drift ahead of it.
       - name: Run Gosec Security Scanner
         id: gosec
         continue-on-error: true
         run: |
-          go run github.com/securego/gosec/v2/cmd/gosec@v2.30.0 \
+          go run github.com/securego/gosec/v2/cmd/gosec@v2.29.0 \
             -fmt sarif -out gosec.sarif -exclude-dir=vendor -tests=false ./
 
       - name: Upload security scan results
