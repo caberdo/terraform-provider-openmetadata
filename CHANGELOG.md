@@ -68,7 +68,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Release pipeline: GPG-signed GoReleaser archives for linux, darwin and windows
   on amd64 and arm64, registry manifest, build provenance and SBOM.
 - Community files: README, AGENTS, CONTRIBUTING, SECURITY, CODE_OF_CONDUCT,
-  LICENSE, NOTICE, dependabot, CODEOWNERS and pull-request/issue templates.
+  ARCHITECTURE, LICENSE, NOTICE, dependabot, CODEOWNERS and pull-request/issue
+  templates.
 
 ### Fixed
 
