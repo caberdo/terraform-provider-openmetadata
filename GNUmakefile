@@ -21,6 +21,38 @@ test:
 test-race:
 	go test -v -race ./internal/...
 
+# Unit coverage only: `TestAcc*` needs TF_ACC and a reachable OpenMetadata
+# server, so it is skipped to keep the profile independent of the environment.
+coverage:
+	go test -count=1 -skip '^TestAcc' -covermode=atomic -coverprofile=coverage.out ./internal/...
+	@echo
+	@./scripts/coverage-summary.sh coverage.out
+
+coverage-html: coverage
+	go tool cover -html=coverage.out
+
+# Unit coverage (coverage.out) plus the acceptance profile written by
+# docker-compose.yml (coverage-acceptance.out) as one number.
+coverage-merge:
+	./scripts/merge-coverage.sh coverage-union.out coverage.out coverage-acceptance.out
+	@echo
+	@./scripts/coverage-summary.sh coverage-union.out
+
+# Regenerate the coverage badge and floor statement in README.md from
+# .github/coverage-baseline.txt; `make coverage-readme-check` fails when the
+# committed README has drifted from the baseline.
+coverage-readme:
+	./scripts/coverage-readme.sh
+
+coverage-readme-check:
+	./scripts/coverage-readme.sh --check
+
+# Fail when coverage.out is below the floor in .github/coverage-baseline.txt or
+# a package floor in .github/coverage-floors.txt. Acceptance coverage is
+# reported separately and is not gated: it depends on Docker being available.
+coverage-gate:
+	./scripts/coverage-gate.sh coverage.out
+
 lint:
 	golangci-lint run --config .golangci.yml ./...
 
@@ -60,4 +92,4 @@ release-check:
 release-snapshot:
 	goreleaser release --snapshot --clean --skip=publish,sign --config .github/goreleaser.yml
 
-.PHONY: default build test test-race lint lint-fix fmt vet generate validate-examples testacc testacc-docker testacc-down install release-check release-snapshot
+.PHONY: default build test test-race coverage coverage-html coverage-merge coverage-readme coverage-readme-check coverage-gate lint lint-fix fmt vet generate validate-examples testacc testacc-docker testacc-down install release-check release-snapshot

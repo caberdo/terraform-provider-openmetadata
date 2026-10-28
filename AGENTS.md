@@ -80,6 +80,9 @@ Rules that keep parallel pull requests mergeable:
 | `make build` | build `bin/terraform-provider-openmetadata` |
 | `make test` | unit tests |
 | `make test-race` | unit tests with the race detector |
+| `make coverage` | unit coverage profile (`coverage.out`) and summary |
+| `make coverage-gate` | fail below the module or per-package coverage floor |
+| `make coverage-readme` / `make coverage-readme-check` | rewrite the README coverage badge, or fail when it has drifted |
 | `make lint` | golangci-lint (config at `.golangci.yml`) |
 | `make fmt` / `make vet` | formatting and vet |
 | `make validate-examples` | `terraform fmt`/`validate` every example |
@@ -140,6 +143,7 @@ Both paths run the same tests and use the same pinned server version.
 ## Review gates
 
 A change is ready when `make build`, `make vet`, `make lint` and the relevant
-`go test` scope pass, `make generate` leaves `docs/` unchanged, examples validate
+`go test` scope pass, `make coverage-gate` passes on a fresh `make coverage`
+profile, `make generate` leaves `docs/` unchanged, examples validate
 when they changed, the `Acceptance` job is green for CRUD changes, and no write
 escaped the task's owned paths.
