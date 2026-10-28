@@ -33,6 +33,8 @@ func TestProviderRegistersAllTypes(t *testing.T) {
 	p := New("dev")()
 
 	want := map[string]bool{
+		"openmetadata_ai_application":       false,
+		"openmetadata_ai_governance_policy": false,
 		"openmetadata_api_collection":       false,
 		"openmetadata_api_endpoint":         false,
 		"openmetadata_api_service":          false,
@@ -53,6 +55,9 @@ func TestProviderRegistersAllTypes(t *testing.T) {
 		"openmetadata_file":                 false,
 		"openmetadata_glossary":             false,
 		"openmetadata_glossary_term":        false,
+		"openmetadata_learning_resource":    false,
+		"openmetadata_llm_model":            false,
+		"openmetadata_llm_service":          false,
 		"openmetadata_messaging_service":    false,
 		"openmetadata_metadata_service":     false,
 		"openmetadata_metric":               false,
@@ -60,6 +65,7 @@ func TestProviderRegistersAllTypes(t *testing.T) {
 		"openmetadata_ml_model_service":     false,
 		"openmetadata_pipeline":             false,
 		"openmetadata_pipeline_service":     false,
+		"openmetadata_prompt_template":      false,
 		"openmetadata_query":                false,
 		"openmetadata_search_index":         false,
 		"openmetadata_search_service":       false,

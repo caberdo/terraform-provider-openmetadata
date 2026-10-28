@@ -17,6 +17,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 
 	"github.com/caberdo/terraform-provider-openmetadata/internal/client"
+	aiapplicationdatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/ai_application"
+	aigovernancepolicydatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/ai_governance_policy"
 	apicollectiondatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/api_collection"
 	apiendpointdatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/api_endpoint"
 	apiservicedatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/api_service"
@@ -40,6 +42,9 @@ import (
 	glossarydatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/glossary"
 	glossarytermdatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/glossary_term"
 	ingestionpipelinedatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/ingestion_pipeline"
+	learningresourcedatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/learning_resource"
+	llmmodeldatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/llm_model"
+	llmservicedatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/llm_service"
 	messagingservicedatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/messaging_service"
 	metadataservicedatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/metadata_service"
 	metricdatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/metric"
@@ -48,6 +53,7 @@ import (
 	notificationtemplatedatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/notification_template"
 	pipelinedatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/pipeline"
 	pipelineservicedatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/pipeline_service"
+	prompttemplatedatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/prompt_template"
 	querydatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/query"
 	searchindexdatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/search_index"
 	searchservicedatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/search_service"
@@ -64,6 +70,8 @@ import (
 	workflowdefinitiondatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/workflow_definition"
 	worksheetdatasource "github.com/caberdo/terraform-provider-openmetadata/internal/datasources/worksheet"
 	"github.com/caberdo/terraform-provider-openmetadata/internal/providerdata"
+	aiapplicationresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/ai_application"
+	aigovernancepolicyresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/ai_governance_policy"
 	apicollectionresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/api_collection"
 	apiendpointresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/api_endpoint"
 	apiserviceresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/api_service"
@@ -87,6 +95,9 @@ import (
 	glossaryresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/glossary"
 	glossarytermresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/glossary_term"
 	ingestionpipelineresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/ingestion_pipeline"
+	learningresourceresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/learning_resource"
+	llmmodelresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/llm_model"
+	llmserviceresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/llm_service"
 	messagingserviceresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/messaging_service"
 	metadataserviceresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/metadata_service"
 	metricresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/metric"
@@ -95,6 +106,7 @@ import (
 	notificationtemplateresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/notification_template"
 	pipelineresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/pipeline"
 	pipelineserviceresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/pipeline_service"
+	prompttemplateresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/prompt_template"
 	queryresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/query"
 	searchindexresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/search_index"
 	searchserviceresource "github.com/caberdo/terraform-provider-openmetadata/internal/resources/search_service"
@@ -233,6 +245,8 @@ func (p *OpenMetadataProvider) Configure(ctx context.Context, req provider.Confi
 // so parallel contributors insert in predictable places.
 func (p *OpenMetadataProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
+		aiapplicationresource.NewResource,
+		aigovernancepolicyresource.NewResource,
 		apicollectionresource.NewResource,
 		apiendpointresource.NewResource,
 		apiserviceresource.NewResource,
@@ -256,6 +270,9 @@ func (p *OpenMetadataProvider) Resources(_ context.Context) []func() resource.Re
 		glossaryresource.NewResource,
 		glossarytermresource.NewResource,
 		ingestionpipelineresource.NewResource,
+		learningresourceresource.NewResource,
+		llmmodelresource.NewResource,
+		llmserviceresource.NewResource,
 		messagingserviceresource.NewResource,
 		metadataserviceresource.NewResource,
 		metricresource.NewResource,
@@ -264,6 +281,7 @@ func (p *OpenMetadataProvider) Resources(_ context.Context) []func() resource.Re
 		notificationtemplateresource.NewResource,
 		pipelineresource.NewResource,
 		pipelineserviceresource.NewResource,
+		prompttemplateresource.NewResource,
 		queryresource.NewResource,
 		searchindexresource.NewResource,
 		searchserviceresource.NewResource,
@@ -285,6 +303,8 @@ func (p *OpenMetadataProvider) Resources(_ context.Context) []func() resource.Re
 // DataSources returns the data source factories, sorted alphabetically.
 func (p *OpenMetadataProvider) DataSources(_ context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
+		aiapplicationdatasource.NewDataSource,
+		aigovernancepolicydatasource.NewDataSource,
 		apicollectiondatasource.NewDataSource,
 		apiendpointdatasource.NewDataSource,
 		apiservicedatasource.NewDataSource,
@@ -308,6 +328,9 @@ func (p *OpenMetadataProvider) DataSources(_ context.Context) []func() datasourc
 		glossarydatasource.NewDataSource,
 		glossarytermdatasource.NewDataSource,
 		ingestionpipelinedatasource.NewDataSource,
+		learningresourcedatasource.NewDataSource,
+		llmmodeldatasource.NewDataSource,
+		llmservicedatasource.NewDataSource,
 		messagingservicedatasource.NewDataSource,
 		metadataservicedatasource.NewDataSource,
 		metricdatasource.NewDataSource,
@@ -316,6 +339,7 @@ func (p *OpenMetadataProvider) DataSources(_ context.Context) []func() datasourc
 		notificationtemplatedatasource.NewDataSource,
 		pipelinedatasource.NewDataSource,
 		pipelineservicedatasource.NewDataSource,
+		prompttemplatedatasource.NewDataSource,
 		querydatasource.NewDataSource,
 		searchindexdatasource.NewDataSource,
 		searchservicedatasource.NewDataSource,
