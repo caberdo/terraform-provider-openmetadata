@@ -3,9 +3,10 @@ default: build
 BINARY_NAME=terraform-provider-openmetadata
 VERSION=$(shell git describe --tags --always --dirty 2>/dev/null || echo "dev")
 # OpenMetadata server version the acceptance tests run against. The CI workflow
-# and docker-compose.yml read .github/openmetadata-version.txt too, so bump the
-# file, not this variable, when moving to a new release.
-OPENMETADATA_VERSION ?= $(shell tr -d '[:space:]' < .github/openmetadata-version.txt)
+# reads .github/openmetadata-versions.txt directly and docker-compose.yml takes
+# the same value through OPENMETADATA_VERSION, so bump the file, not this
+# variable, when moving to a new release.
+OPENMETADATA_VERSION ?= $(shell tr -d '[:space:]' < .github/openmetadata-versions.txt)
 # Compose implementation. The stack depends on health- and completion-based
 # conditions, which need Docker Compose v2 or podman-compose 1.6+. Override with
 # `make testacc-docker COMPOSE=podman-compose` when Docker is unavailable.

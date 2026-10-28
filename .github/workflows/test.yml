@@ -107,7 +107,7 @@ jobs:
       # The image tags and the expected /system/version value all come from one
       # file, so a version bump cannot update some of them and miss the others.
       - name: Read the pinned OpenMetadata version
-        run: echo "OPENMETADATA_VERSION=$(tr -d '[:space:]' < .github/openmetadata-version.txt)" >> "$GITHUB_ENV"
+        run: echo "OPENMETADATA_VERSION=$(tr -d '[:space:]' < .github/openmetadata-versions.txt)" >> "$GITHUB_ENV"
 
       # Elasticsearch refuses to start when vm.max_map_count is the distribution
       # default (65530). The podman-backed local run already has 262144.

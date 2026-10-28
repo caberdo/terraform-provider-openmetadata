@@ -30,7 +30,7 @@ are preserved rather than zeroed.
 - Terraform 1.9 or later (plugin protocol 6.0).
 - OpenMetadata **1.13** or later. CI runs the acceptance suite against the
   version pinned in
-  [`.github/openmetadata-version.txt`](.github/openmetadata-version.txt).
+  [`.github/openmetadata-versions.txt`](.github/openmetadata-versions.txt).
 
 ## Quick start
 
@@ -80,7 +80,7 @@ make testacc-down      # remove the stack and its volumes
 ```
 
 The compose stack pins the server through `OPENMETADATA_VERSION`, which defaults
-to the contents of `.github/openmetadata-version.txt`. The suite asserts the
+to the contents of `.github/openmetadata-versions.txt`. The suite asserts the
 server's `/system/version` matches that pin before running, so a stale image
 fails at the precheck rather than in a confusing capability error.
 

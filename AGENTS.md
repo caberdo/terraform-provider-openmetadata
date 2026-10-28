@@ -108,7 +108,7 @@ To run the suite from the host against the published server port instead of the
 `test` container:
 
 ```sh
-export OPENMETADATA_VERSION=$(tr -d '[:space:]' < .github/openmetadata-version.txt)
+export OPENMETADATA_VERSION=$(tr -d '[:space:]' < .github/openmetadata-versions.txt)
 podman-compose up -d postgresql elasticsearch
 podman-compose run --rm migrate
 podman-compose up -d openmetadata-server
