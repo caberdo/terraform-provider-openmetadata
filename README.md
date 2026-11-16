@@ -1,11 +1,9 @@
 # Terraform Provider for OpenMetadata
 
 [![CI](https://img.shields.io/github/actions/workflow/status/caberdo/terraform-provider-openmetadata/test.yml?branch=main&label=CI)](https://github.com/caberdo/terraform-provider-openmetadata/actions/workflows/test.yml)
-<!-- coverage:start -->
-![Coverage floor](https://img.shields.io/badge/coverage%20floor-33%25-green)
-
-The coverage gate fails below **33%** (`make coverage-gate`).
-<!-- coverage:end -->
+<!-- coverage-badge:start -->
+[![Coverage floor](https://img.shields.io/badge/coverage%20floor-33%25-green)](#testing-and-coverage)
+<!-- coverage-badge:end -->
 [![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/caberdo/terraform-provider-openmetadata/badge)](https://scorecard.dev/viewer/?uri=github.com/caberdo/terraform-provider-openmetadata)
 [![Release](https://img.shields.io/github/v/release/caberdo/terraform-provider-openmetadata?label=release)](https://github.com/caberdo/terraform-provider-openmetadata/releases)
 [![Terraform Registry](https://img.shields.io/badge/registry-caberdo%2Fopenmetadata-7b42bc)](https://registry.terraform.io/providers/caberdo/openmetadata)
@@ -40,7 +38,6 @@ objects and AI assets — through the OpenMetadata REST API.
 - [Quick start](#quick-start)
 - [Requirements and compatibility](#requirements-and-compatibility)
 - [Repository layout](#repository-layout)
-- [Documentation](#documentation)
 - [Provider configuration](#provider-configuration)
 - [Resources](#resources)
 - [Data sources](#data-sources)
@@ -116,18 +113,6 @@ examples/                   HCL examples rendered into docs/
 templates/                  tfplugindocs templates
 docs/                       generated provider documentation
 ```
-
-## Documentation
-
-- [Generated provider docs](docs/index.md) — every resource and data source page, rendered from
-  [`examples/`](examples) and [`templates/`](templates) by `make generate`.
-- [Tasks and waves](TASKS.md) — every entity, its owning paths and the parallel work contract.
-- [Contributing](CONTRIBUTING.md) — development workflow and review gates.
-- [Agents](AGENTS.md) — the contract for agent-assisted entity work.
-- [Architecture](ARCHITECTURE.md) — request flow, client, resource and data source patterns, test
-  layers and release mechanics.
-- [Security](SECURITY.md) — supported versions and reporting.
-- [Changelog](CHANGELOG.md).
 
 ## Provider configuration
 
@@ -240,6 +225,10 @@ module floor in `.github/coverage-baseline.txt` and the per-package floors in
 package with no tests measures 0% and fails the gate, so a new entity package is gated the moment
 it exists.
 
+<!-- coverage:start -->
+The coverage gate fails below **33%** (`make coverage-gate`).
+<!-- coverage:end -->
+
 ## Development
 
 ```bash
@@ -247,6 +236,7 @@ make build              # build bin/terraform-provider-openmetadata
 make install            # install into ~/.terraform.d/plugins for local dev_overrides
 make test coverage      # unit tests + coverage profile
 make test-race          # unit tests with the race detector
+make coverage-readme    # regenerate the README coverage badge and floor statement
 make lint vet fmt       # golangci-lint (.golangci.yml), go vet, gofmt
 make generate           # regenerate docs/ with tfplugindocs
 make validate-examples  # check examples/ against the provider schema
@@ -327,6 +317,8 @@ Yes — this is a plugin-protocol 6.0 provider and it is listed in the
 
 ## Security, contributing and support
 
+- [Generated provider docs](docs/index.md) — every resource and data source page, rendered from
+  [`examples/`](examples) and [`templates/`](templates) by `make generate`.
 - [`SECURITY.md`](SECURITY.md) — supported versions, the threat model and how to report a
   vulnerability privately.
 - [`CONTRIBUTING.md`](CONTRIBUTING.md) — development setup, acceptance tests, review gates and the

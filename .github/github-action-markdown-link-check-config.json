@@ -9,6 +9,10 @@
       "pattern": "^https?://([^/]*example\\.com|localhost|127\\.0\\.0\\.1)"
     },
     {
+      "comment": "The OpenTofu registry badge target (https://search.opentofu.org/) answers the badge once per README; checking it on every run adds no signal.",
+      "pattern": "^https?://search\\.opentofu\\.org/"
+    },
+    {
       "pattern": "^https?://(api\\.securityscorecards\\.dev|scorecard\\.dev)"
     },
     {
