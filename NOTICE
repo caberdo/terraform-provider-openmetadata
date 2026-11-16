@@ -1,9 +1,9 @@
 # NOTICE
 
 terraform-provider-openmetadata
-Copyright 2026 The terraform-provider-openmetadata contributors
+Copyright (c) 2026 Dennis de Jong
 
-This product is licensed under the Mozilla Public License, v. 2.0 (see `LICENSE`).
+This product is licensed under the MIT License (see `LICENSE`).
 
 ## Upstream material
 
@@ -13,7 +13,7 @@ the released binary.
 
 | Upstream work | Licence | What is derived | Distribution |
 |---|---|---|---|
-| HashiCorp `terraform-provider-scaffolding-framework` | MPL-2.0 | Entry point (`main.go`) and the provider build/serve pattern | Source and binary |
+| HashiCorp `terraform-provider-scaffolding-framework` | MPL-2.0 | The build/release configuration follows HashiCorp's scaffolding. `main.go` follows the published `providerserver` pattern and was written for this repository; no MPL-2.0 source is copied into it. | Build pattern only |
 | OpenMetadata Go client (`open-metadata/openmetadata-sdk`) | Apache-2.0 | REST API client compiled into the provider | Binary |
 | HashiCorp Terraform plugin libraries | MPL-2.0 | `terraform-plugin-framework`, `terraform-plugin-framework-validators`, `terraform-plugin-go`, `terraform-plugin-log` and `terraform-plugin-testing` are compiled into the provider and its tests; `terraform-plugin-docs` is used at build time to generate `docs/` | Binary and build tooling |
 | `google/uuid` | BSD-3-Clause | UUID handling in tests | Test code |
@@ -25,6 +25,20 @@ namespace `registry.terraform.io/caberdo/openmetadata`; the source repository is
 
 OpenMetadata itself is not included in this distribution; the provider talks to
 an OpenMetadata server over its REST API.
+
+## Licence scope
+
+The MIT licence in `LICENSE` covers this project's own source, documentation and
+configuration. It does not relicense third-party material:
+
+- The OpenMetadata Go client and `google/uuid` keep their Apache-2.0 and
+  BSD-3-Clause licences respectively.
+- The HashiCorp Terraform plugin libraries listed above remain under MPL-2.0 and
+  are compiled in unmodified.
+- Files that still carry material derived from the HashiCorp scaffolding named
+  above remain available under MPL-2.0 for that material. This notice does not
+  claim that every file outside the entry point is free of such material; the
+  entry point itself was written for this repository.
 
 ## Third-party dependencies
 
