@@ -336,4 +336,5 @@ Yes — this is a plugin-protocol 6.0 provider and it is listed in the
 
 ## License
 
-Mozilla Public License 2.0. See [LICENSE](LICENSE) and [NOTICE](NOTICE).
+MIT — see the [LICENSE](LICENSE) file, and [`NOTICE`](./NOTICE) for the upstream
+works this project derives from and the licence carve-outs that apply to them.

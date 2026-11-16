@@ -1,38 +1,51 @@
-// Copyright (c) HashiCorp, Inc.
-// SPDX-License-Identifier: MPL-2.0
-
 package main
+
+// Run "go generate" to regenerate the documentation in docs/ from examples/
+// and templates/. The provider must be buildable and Terraform must be on PATH.
+//
+//go:generate go run github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs generate --provider-name openmetadata
 
 import (
 	"context"
+	"errors"
 	"flag"
-	"log"
+	"fmt"
+	"os"
 
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 
 	"github.com/caberdo/terraform-provider-openmetadata/internal/provider"
 )
 
-// Run "go generate" to regenerate the documentation in docs/ from examples/
-// and templates/. The provider must be buildable and Terraform must be on PATH.
-//
-//go:generate go run github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs generate --provider-name openmetadata
+// providerAddress is the registry address Terraform uses to select this provider.
+const providerAddress = "registry.terraform.io/caberdo/openmetadata"
+
+// version is replaced at build time by GoReleaser with
+// -ldflags "-X main.version=<release>".
+var version = "dev"
+
 func main() {
-	var debug bool
-	flag.BoolVar(&debug, "debug", false, "set to true to run the provider with support for debuggers like delve")
-	flag.Parse()
-
-	opts := providerserver.ServeOpts{
-		Address: "registry.terraform.io/caberdo/openmetadata",
-		Debug:   debug,
-	}
-
-	if err := providerserver.Serve(context.Background(), provider.New(version), opts); err != nil {
-		log.Fatal(err.Error())
+	if err := run(os.Args[1:]); err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
 	}
 }
 
-// version is set at build time by GoReleaser:
-//
-//	-ldflags "-X main.version={{.Version}}"
-var version = "dev"
+// run parses the provider's command-line flags and serves the plugin. It is
+// separate from main so the flag handling can be exercised without exiting the
+// process.
+func run(args []string) error {
+	flags := flag.NewFlagSet("terraform-provider-openmetadata", flag.ContinueOnError)
+	debug := flags.Bool("debug", false, "run the provider with support for debuggers like delve")
+	if err := flags.Parse(args); err != nil {
+		if errors.Is(err, flag.ErrHelp) {
+			return nil
+		}
+		return err
+	}
+
+	return providerserver.Serve(context.Background(), provider.New(version), providerserver.ServeOpts{
+		Address: providerAddress,
+		Debug:   *debug,
+	})
+}
