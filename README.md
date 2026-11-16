@@ -83,7 +83,7 @@ fails at the precheck rather than in a confusing capability error.
 <!-- coverage:start -->
 ![Coverage floor](https://img.shields.io/badge/coverage%20floor-33%25-green)
 
-The coverage gate fails below **33%** (`./scripts/coverage-gate.sh`).
+The coverage gate fails below **33%** (`make coverage-gate`).
 <!-- coverage:end -->
 
 `make coverage` writes the unit profile to `coverage.out`; `make coverage-gate`
@@ -94,8 +94,9 @@ is not gated because it needs a live server.
 
 ## Releases
 
-Releases are cut from the **Create Release Tag** workflow, which signs the tag
-and invokes the **Release** workflow. GoReleaser builds linux, darwin and
+Releases are cut by dispatching the **Release** workflow, whose tag job signs
+the next tag (or republishes an explicit one); a `v*` tag pushed from a
+developer machine enters the same workflow. GoReleaser builds linux, darwin and
 windows binaries for amd64 and arm64, signs the checksum file with the
 repository's GPG key, and publishes the Terraform registry manifest alongside
 the archives. `make release-snapshot` produces the same platform set locally

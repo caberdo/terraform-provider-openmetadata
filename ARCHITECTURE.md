@@ -215,7 +215,12 @@ under `go vet ./...` even when they are not run locally.
 `go generate ./...`; `docs/` is never hand-edited. CI regenerates the docs and
 fails on drift, including new untracked files.
 
-The `Create Release Tag` workflow signs a tag and calls `Release`, which runs
-GoReleaser for linux, darwin and windows on amd64 and arm64, signs the checksum
-file, attests build provenance, emits an SBOM and publishes the registry
-manifest. `make release-snapshot` builds the same platform set locally.
+The `Release` workflow is the single release entry point. Its first job, `Tag
+the release`, resolves the next version from the `version` or `release_type`
+dispatch input (or accepts an existing tag through `tag` for a republish) and
+signs the tag; a `v*` tag pushed from a developer machine enters the same
+workflow, where that job passes it through instead of creating one. The
+`GoReleaser` job then runs GoReleaser for linux, darwin and windows on amd64
+and arm64, signs the checksum file, attests build provenance, emits an SBOM and
+publishes the registry manifest. `make release-snapshot` builds the same
+platform set locally.

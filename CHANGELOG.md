@@ -6,6 +6,16 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+### Changed
+
+- CI, release and coverage tooling now run through
+  `caberdo/terraform-provider-kit` at v0.7.0. The scripts named in the 0.1.0
+  entry below (`scripts/coverage-*.sh`, `scripts/merge-coverage.sh`,
+  `scripts/validate-examples.sh`, `scripts/check-branch-protection.sh`,
+  `scripts/setup-branch-protection.sh`) and
+  `.github/workflows/create-release-tag.yml` were replaced by the kit's reusable
+  workflows; that entry is left as released.
+
 ## [0.1.0] - 2026-10-28
 
 ### Added

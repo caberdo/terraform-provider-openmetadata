@@ -11,6 +11,11 @@ OPENMETADATA_VERSION ?= $(shell tr -d '[:space:]' < .github/openmetadata-version
 # conditions, which need Docker Compose v2 or podman-compose 1.6+. Override with
 # `make testacc-docker COMPOSE=podman-compose` when Docker is unavailable.
 COMPOSE ?= docker compose
+# The shared tooling for the caberdo providers: the coverage gate, merge and
+# README targets, and example validation. Keep this pin equal to the `uses:`
+# refs in .github/workflows/*.yml: one version for the local targets and the
+# reusable workflows, so they cannot drift apart.
+TFKIT ?= go run github.com/caberdo/terraform-provider-kit/cmd/tfkit@v0.8.0
 
 build:
 	go build -o bin/$(BINARY_NAME) -ldflags "-X main.version=$(VERSION)" .
@@ -26,7 +31,7 @@ test-race:
 coverage:
 	go test -count=1 -skip '^TestAcc' -covermode=atomic -coverprofile=coverage.out ./internal/...
 	@echo
-	@./scripts/coverage-summary.sh coverage.out
+	@go tool cover -func=coverage.out
 
 coverage-html: coverage
 	go tool cover -html=coverage.out
@@ -34,24 +39,25 @@ coverage-html: coverage
 # Unit coverage (coverage.out) plus the acceptance profile written by
 # docker-compose.yml (coverage-acceptance.out) as one number.
 coverage-merge:
-	./scripts/merge-coverage.sh coverage-union.out coverage.out coverage-acceptance.out
+	$(TFKIT) coverage merge --output coverage-union.out coverage.out coverage-acceptance.out
 	@echo
-	@./scripts/coverage-summary.sh coverage-union.out
+	@go tool cover -func=coverage-union.out
 
 # Regenerate the coverage badge and floor statement in README.md from
 # .github/coverage-baseline.txt; `make coverage-readme-check` fails when the
-# committed README has drifted from the baseline.
+# committed README has drifted from the baseline. tfkit renders the sentence
+# around `make coverage-gate` itself, so the local and CI verdicts agree.
 coverage-readme:
-	./scripts/coverage-readme.sh
+	$(TFKIT) coverage readme
 
 coverage-readme-check:
-	./scripts/coverage-readme.sh --check
+	$(TFKIT) coverage readme --check
 
 # Fail when coverage.out is below the floor in .github/coverage-baseline.txt or
 # a package floor in .github/coverage-floors.txt. Acceptance coverage is
 # reported separately and is not gated: it depends on Docker being available.
 coverage-gate:
-	./scripts/coverage-gate.sh coverage.out
+	$(TFKIT) coverage gate --profile coverage.out
 
 lint:
 	golangci-lint run --config .golangci.yml ./...
@@ -68,8 +74,12 @@ vet:
 generate:
 	go generate ./...
 
+# Validate every Terraform example against the provider built from this tree.
+# tfkit builds into a temporary directory; set TFKIT_PLUGIN_DIR (or pass
+# --plugin-dir) to pin that directory, so parallel runs do not overwrite each
+# other's build. Terraform missing skips the check unless REQUIRE_TERRAFORM=1.
 validate-examples:
-	./scripts/validate-examples.sh
+	$(TFKIT) examples validate --provider openmetadata
 
 testacc:
 	TF_ACC=1 go test -v -timeout 30m ./internal/...

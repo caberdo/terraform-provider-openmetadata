@@ -103,28 +103,51 @@ CI must be green. The required contexts on `main` are:
 
 | Context | Job | Covers |
 |---|---|---|
-| `Lint & Security` | `lint` | golangci-lint and gosec |
-| `Test` | `test` | build, vet, `go mod tidy`, cross-platform build, example validation and the race-enabled unit suite |
-| `Docs` | `docs` | `go generate ./...` leaves `docs/` unchanged |
-| `Acceptance` | `acceptance` | the compose stack against the pinned OpenMetadata version, plus combined unit and acceptance coverage |
+| `ci / Lint & Security` | `ci` → `lint` | golangci-lint and gosec |
+| `ci / Test` | `ci` → `test` | build, vet, `go mod tidy`, cross-platform build, example validation and the race-enabled unit suite |
+| `ci / Generate Docs` | `ci` → `docs` | `go generate ./...` leaves `docs/` unchanged |
+| `acceptance / Acceptance` | `acceptance` → roll-up | the compose stack against the pinned OpenMetadata version, plus combined unit and acceptance coverage |
 
 `main` is protected by the `protect-main` repository ruleset: those four
 contexts, a linear history, no force pushes or deletions, a merge queue and no
-bypass actors. A job `name:` is the required context, so renaming one is a
-breaking CI change: update `.github/workflows/test.yml`, the context list in
-`scripts/setup-branch-protection.sh` and `scripts/check-branch-protection.sh`,
-and the ruleset together.
+bypass actors. The job shapes live in
+`caberdo/terraform-provider-kit/.github/workflows/provider-ci.yml` and
+`provider-acceptance.yml`; the caller jobs in `.github/workflows/test.yml` are
+named `ci` and `acceptance`, which is the prefix of every context above. Renaming
+a caller job or a called job's display name is a breaking CI change: update the
+workflows, `required-contexts` in `.github/workflows/protection-drift.yml`, this
+table and the ruleset together.
 
-Run `./scripts/check-branch-protection.sh` to verify the live ruleset and
-`./scripts/setup-branch-protection.sh` to install or repair it (needs admin on
-the repository). The weekly **Branch Protection Drift** workflow runs the same
-check and opens an issue on drift; it needs a `BRANCH_PROTECTION_TOKEN` secret
-with administration read permission.
+This repository's ruleset is named `protect-main`. tfkit defaults to
+`main-protection`, which is not this repository's ruleset, so pass
+`--ruleset protect-main` (or set `RULESET_NAME=protect-main`) on every command:
+without it `check` reports that `main-protection` does not exist, and `setup`
+creates a second ruleset named `main-protection` beside the real one.
+
+```sh
+tfkit branch-protection check --ruleset protect-main \
+  --contexts "ci / Lint & Security,ci / Test,ci / Generate Docs,acceptance / Acceptance"
+tfkit branch-protection setup --ruleset protect-main \
+  --contexts "ci / Lint & Security,ci / Test,ci / Generate Docs,acceptance / Acceptance"
+```
+
+`setup` needs admin on the repository. The same commands run through `go run
+github.com/caberdo/terraform-provider-kit/cmd/tfkit@v0.8.0`. The weekly
+**Branch Protection Drift** workflow runs the check and opens an issue on
+drift; it needs a `BRANCH_PROTECTION_TOKEN` secret with administration read
+permission.
+
+The Markdown link check runs in `ci / Validate Markdown Files`, which is not
+one of the four required contexts above. It is therefore advisory: a broken
+link shows up on the pull request but no longer blocks a merge unless that
+context is added to the ruleset. The four contexts listed here are the merge
+gate; if `ci / Validate Markdown Files` should be required, add it to
+`required-contexts` and the ruleset together.
 
 ## Coverage floors
 
-`scripts/coverage-gate.sh` enforces two things on the unit profile
-(`coverage.out`):
+`make coverage-gate` (that is, `tfkit coverage gate`) enforces two things on the
+unit profile (`coverage.out`):
 
 - the module total against `.github/coverage-baseline.txt`, which the README
   badge tracks;
@@ -145,11 +168,11 @@ badge has drifted from the baseline.
 
 ## Release
 
-Dispatch **Create Release Tag** from the Actions tab. It calculates or accepts a
-version, creates a GPG-signed tag, and calls the **Release** workflow, which runs
-GoReleaser with signed checksums, the registry manifest, build provenance and an
-SBOM. To republish an existing tag, dispatch **Release** with the tag instead of
-re-running the tag workflow.
+Dispatch **Release** from the Actions tab. It calculates the next version (or
+accepts `version` explicitly), creates a GPG-signed tag, and runs GoReleaser with
+signed checksums, the registry manifest, build provenance and an SBOM. To
+republish an existing tag, dispatch **Release** with `tag` set instead of
+re-running a tag calculation.
 
 ## Commits
 
