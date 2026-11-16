@@ -108,7 +108,7 @@ services:
         condition: service_completed_successfully
 
   test:
-    image: golang:1.27.3
+    image: golang:1.27.4
     working_dir: /app
     volumes:
       - .:/app
