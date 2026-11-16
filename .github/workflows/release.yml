@@ -49,9 +49,9 @@ on:
 permissions:
   contents: read
 
-# Only a version-calculating dispatch creates a tag; a manual dispatch can race
-# a merge. Serialise them instead of cancelling, so a half-created tag is never
-# abandoned.
+# Two dispatches can land at once: one calculating a version and one
+# republishing an existing tag. Serialise them instead of cancelling, so a
+# half-created tag is never abandoned. No merge triggers this workflow.
 concurrency:
   group: create-release-tag
   cancel-in-progress: false

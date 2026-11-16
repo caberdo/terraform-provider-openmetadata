@@ -118,14 +118,31 @@ a caller job or a called job's display name is a breaking CI change: update the
 workflows, `required-contexts` in `.github/workflows/protection-drift.yml`, this
 table and the ruleset together.
 
-Run `tfkit branch-protection check` to verify the live ruleset and
-`tfkit branch-protection setup` to install or repair it (needs admin on the
-repository), passing the four contexts above through `--contexts`. The same
-commands run through `go run
-github.com/caberdo/terraform-provider-kit/cmd/tfkit@v0.7.0`. The weekly
+This repository's ruleset is named `protect-main`. tfkit defaults to
+`main-protection`, which is not this repository's ruleset, so pass
+`--ruleset protect-main` (or set `RULESET_NAME=protect-main`) on every command:
+without it `check` reports that `main-protection` does not exist, and `setup`
+creates a second ruleset named `main-protection` beside the real one.
+
+```sh
+tfkit branch-protection check --ruleset protect-main \
+  --contexts "ci / Lint & Security,ci / Test,ci / Generate Docs,acceptance / Acceptance"
+tfkit branch-protection setup --ruleset protect-main \
+  --contexts "ci / Lint & Security,ci / Test,ci / Generate Docs,acceptance / Acceptance"
+```
+
+`setup` needs admin on the repository. The same commands run through `go run
+github.com/caberdo/terraform-provider-kit/cmd/tfkit@v0.8.0`. The weekly
 **Branch Protection Drift** workflow runs the check and opens an issue on
 drift; it needs a `BRANCH_PROTECTION_TOKEN` secret with administration read
 permission.
+
+The Markdown link check runs in `ci / Validate Markdown Files`, which is not
+one of the four required contexts above. It is therefore advisory: a broken
+link shows up on the pull request but no longer blocks a merge unless that
+context is added to the ruleset. The four contexts listed here are the merge
+gate; if `ci / Validate Markdown Files` should be required, add it to
+`required-contexts` and the ruleset together.
 
 ## Coverage floors
 

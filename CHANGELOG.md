@@ -6,6 +6,16 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+### Changed
+
+- CI, release and coverage tooling now run through
+  `caberdo/terraform-provider-kit` at v0.7.0. The scripts named in the 0.1.0
+  entry below (`scripts/coverage-*.sh`, `scripts/merge-coverage.sh`,
+  `scripts/validate-examples.sh`, `scripts/check-branch-protection.sh`,
+  `scripts/setup-branch-protection.sh`) and
+  `.github/workflows/create-release-tag.yml` were replaced by the kit's reusable
+  workflows; that entry is left as released.
+
 ## [0.1.0] - 2026-10-28
 
 ### Added
@@ -72,11 +82,13 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Community files: README, AGENTS, CONTRIBUTING, SECURITY, CODE_OF_CONDUCT,
   ARCHITECTURE, LICENSE, NOTICE, dependabot, CODEOWNERS and pull-request/issue
   templates.
-- Coverage tooling shared with the trino provider: the module baseline and
-  per-package floors in `.github/coverage-baseline.txt` and
-  `.github/coverage-floors.txt`. The unit gate runs in the `Test` job, the
-  acceptance container writes `coverage-acceptance.out` for the combined
-  report, and the README badge is checked against the baseline.
+- Coverage tooling ported from the trino provider: `scripts/coverage-summary.sh`,
+  `scripts/merge-coverage.sh`, `scripts/coverage-gate.sh` and
+  `scripts/coverage-readme.sh`, with the module baseline and per-package floors
+  in `.github/coverage-baseline.txt` and `.github/coverage-floors.txt`. The unit
+  gate runs in the `Test` job, the acceptance container writes
+  `coverage-acceptance.out` for the combined report, and the README badge is
+  checked against the baseline.
 
 ### Fixed
 
