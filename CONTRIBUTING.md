@@ -168,9 +168,10 @@ badge has drifted from the baseline.
 
 ## Release
 
-A release is a signed `v*` tag: the tag is the version and there is no `VERSION`
-file. The release pull request assembles the `CHANGELOG.md` `Unreleased` section
-from the `changelog.d/` fragments and updates the README install constraint when
+A release is a signed `v*` tag cut after the release pull request merges: the
+newest `CHANGELOG.md` section names the version, and there is no `VERSION` file.
+The release pull request assembles the `CHANGELOG.md` `Unreleased` section from
+the `changelog.d/` fragments and updates the README install constraint when
 the minor line moves. Merging it publishes nothing.
 
 Cut the tag from a clone of `main` and push it; that push runs **Release**, which
