@@ -55,7 +55,8 @@ objects and AI assets — through the OpenMetadata REST API.
 terraform {
   required_providers {
     openmetadata = {
-      source = "caberdo/openmetadata"
+      source  = "caberdo/openmetadata"
+      version = "~> 0.1"
     }
   }
 }
