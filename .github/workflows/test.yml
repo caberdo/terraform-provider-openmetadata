@@ -55,9 +55,8 @@ jobs:
       # This repository does not run govulncheck today; `none` keeps the
       # Vulnerability Scan job as an explicit no-op instead of adding a scan.
       govuln-mode: none
-      # gosec v2.30.0 requires Go 1.26 and the module still declares Go 1.25.8,
-      # so keep the newest scanner that builds with this module toolchain.
-      gosec-version: v2.29.0
+      # The module now requires Go 1.27.4, so the kit's default gosec (v2.30.0)
+      # builds here; v2.29.0 could not parse the newer export data.
       # The prebuilt v2.15.0 binary is what this repository ran before; building
       # it with the module toolchain is not needed here.
       golangci-install-mode: binary
