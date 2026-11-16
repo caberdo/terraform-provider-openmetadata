@@ -105,7 +105,7 @@ CI must be green. The required contexts on `main` are:
 |---|---|---|
 | `ci / Lint & Security` | `ci` → `lint` | golangci-lint and gosec |
 | `ci / Test` | `ci` → `test` | build, vet, `go mod tidy`, cross-platform build, example validation and the race-enabled unit suite |
-| `ci / Docs` | `ci` → `docs` | `go generate ./...` leaves `docs/` unchanged |
+| `ci / Generate Docs` | `ci` → `docs` | `go generate ./...` leaves `docs/` unchanged |
 | `acceptance / Acceptance` | `acceptance` → roll-up | the compose stack against the pinned OpenMetadata version, plus combined unit and acceptance coverage |
 
 `main` is protected by the `protect-main` repository ruleset: those four
@@ -122,7 +122,7 @@ Run `tfkit branch-protection check` to verify the live ruleset and
 `tfkit branch-protection setup` to install or repair it (needs admin on the
 repository), passing the four contexts above through `--contexts`. The same
 commands run through `go run
-github.com/caberdo/terraform-provider-kit/cmd/tfkit@v0.6.0`. The weekly
+github.com/caberdo/terraform-provider-kit/cmd/tfkit@v0.7.0`. The weekly
 **Branch Protection Drift** workflow runs the check and opens an issue on
 drift; it needs a `BRANCH_PROTECTION_TOKEN` secret with administration read
 permission.

@@ -22,7 +22,7 @@ concurrency:
 
 jobs:
   ci:
-    uses: caberdo/terraform-provider-kit/.github/workflows/provider-ci.yml@v0.6.0
+    uses: caberdo/terraform-provider-kit/.github/workflows/provider-ci.yml@v0.7.0
     # GitHub validates a caller's grant against every job of the called workflow
     # before any `if:` or input is evaluated, so these are the union of what
     # provider-ci declares, not what this run happens to execute:
@@ -61,12 +61,13 @@ jobs:
       # The prebuilt v2.15.0 binary is what this repository ran before; building
       # it with the module toolchain is not needed here.
       golangci-install-mode: binary
-      # `docs-mode: drift` keeps the generate-and-diff check in the job the
-      # ruleset requires by name, as it was before. The untracked-file check
-      # catches a new entity adding a file under docs/ that `git diff` misses.
+      # `docs-mode: drift` keeps the generate-and-diff check in the docs job,
+      # whose name the kit fixes at v0.7.0 (it used to be a caller input), so
+      # the required context is now `ci / Generate Docs`. The untracked-file
+      # check catches a new entity adding a file under docs/ that `git diff`
+      # misses.
       docs: true
       docs-mode: drift
-      docs-job-name: Docs
       docs-untracked-check: true
       docs-drift-in-test: false
       # The old Docs job also ran the Markdown link checker; it is a separate
@@ -85,7 +86,7 @@ jobs:
   # exactly as a failing `test` did before.
   acceptance:
     needs: ci
-    uses: caberdo/terraform-provider-kit/.github/workflows/provider-acceptance.yml@v0.6.0
+    uses: caberdo/terraform-provider-kit/.github/workflows/provider-acceptance.yml@v0.7.0
     permissions:
       contents: read
     with:
