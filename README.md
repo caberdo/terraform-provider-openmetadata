@@ -83,7 +83,7 @@ fails at the precheck rather than in a confusing capability error.
 <!-- coverage:start -->
 ![Coverage floor](https://img.shields.io/badge/coverage%20floor-33%25-green)
 
-The coverage gate fails below **33%** (`./scripts/coverage-gate.sh`).
+The coverage gate fails below **33%** (`make coverage-gate`).
 <!-- coverage:end -->
 
 `make coverage` writes the unit profile to `coverage.out`; `make coverage-gate`
