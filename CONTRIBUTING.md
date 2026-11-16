@@ -168,11 +168,24 @@ badge has drifted from the baseline.
 
 ## Release
 
-Dispatch **Release** from the Actions tab. It calculates the next version (or
-accepts `version` explicitly), creates a GPG-signed tag, and runs GoReleaser with
-signed checksums, the registry manifest, build provenance and an SBOM. To
-republish an existing tag, dispatch **Release** with `tag` set instead of
-re-running a tag calculation.
+A release is a signed `v*` tag cut after the release pull request merges: the
+newest `CHANGELOG.md` section names the version, and there is no `VERSION` file.
+The release pull request assembles the `CHANGELOG.md` `Unreleased` section from
+the `changelog.d/` fragments and updates the README install constraint when
+the minor line moves. Merging it publishes nothing.
+
+Cut the tag from a clone of `main` and push it; that push runs **Release**, which
+publishes the tag with GoReleaser, signed checksums, the registry manifest, build
+provenance and an SBOM:
+
+```bash
+git tag -s vX.Y.Z -m "Release vX.Y.Z"
+git push origin vX.Y.Z
+```
+
+Dispatch **Release** with `tag: vX.Y.Z` to publish or republish a tag that
+already exists; a dispatch cannot choose a new version, because nothing but a
+tag names one.
 
 ## Commits
 

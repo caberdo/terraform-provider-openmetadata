@@ -55,7 +55,8 @@ objects and AI assets — through the OpenMetadata REST API.
 terraform {
   required_providers {
     openmetadata = {
-      source = "caberdo/openmetadata"
+      source  = "caberdo/openmetadata"
+      version = "~> 0.1"
     }
   }
 }
@@ -170,8 +171,9 @@ under [`docs/data-sources/`](docs/data-sources).
 
 ## Verifying a release
 
-Releases are cut by dispatching the **Release** workflow, whose tag job signs the next tag (or
-republishes an explicit one); a `v*` tag pushed from a developer machine enters the same workflow.
+Releases are cut after the release pull request merges by pushing a GPG-signed `v*` tag, or by
+dispatching **Release** with an existing tag to republish it. The kit's tag job is skipped without
+a version file, so no workflow invents a version on `main`.
 GoReleaser then builds linux, darwin and windows binaries for amd64 and arm64 from the
 GPG-signed tag and publishes:
 
