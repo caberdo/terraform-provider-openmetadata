@@ -6,7 +6,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
-LICENSE:
+## [0.2.0] - 2026-11-17
+
+CHORES:
 - **The project moves from MPL-2.0 to the MIT License.** `LICENSE` now holds the MIT text;
   `NOTICE` records the upstream works the project derives from, including the scaffolding lineage,
   and which third-party material the MIT licence does not cover; `README.md` states MIT. Releases
@@ -14,16 +16,19 @@ LICENSE:
   onward. `main.go` was rewritten against the public `providerserver` API, so no MPL-2.0 source
   remains in the entry point. The build/release configuration that follows HashiCorp's scaffolding
   is called out in `NOTICE`. No provider behaviour, schema or state changes.
-
-### Changed
-
-- CI, release and coverage tooling now run through
-  `caberdo/terraform-provider-kit` at v0.7.0. The scripts named in the 0.1.0
-  entry below (`scripts/coverage-*.sh`, `scripts/merge-coverage.sh`,
+- The CI, release and coverage tooling now comes from `caberdo/terraform-provider-kit` at
+  `v0.16.0`. The released version is the last git tag rather than a `VERSION` file, every pull
+  request that changes code, workflows, docs or examples adds a fragment under `changelog.d/`, and
+  the README install constraint and changelog headings were repaired where they disagreed. The
+  scripts named in the 0.1.0 entry below (`scripts/coverage-*.sh`, `scripts/merge-coverage.sh`,
   `scripts/validate-examples.sh`, `scripts/check-branch-protection.sh`,
-  `scripts/setup-branch-protection.sh`) and
-  `.github/workflows/create-release-tag.yml` were replaced by the kit's reusable
-  workflows; that entry is left as released.
+  `scripts/setup-branch-protection.sh`) and `.github/workflows/create-release-tag.yml` were replaced
+  by the kit's reusable workflows; that entry is left as released.
+- The repository now runs a **weekly maintenance pipeline**: it reports which upstream release the
+  supported-versions matrix does not cover, runs the acceptance suite against that release as a canary so a
+  version bump can be judged as a matrix edit or a code change, and reports when the repository is behind
+  the shared CI kit or pins two different kit versions. Findings appear as one issue per category and
+  close themselves when resolved; nothing is bumped automatically.
 
 ## [0.1.0] - 2026-10-28
 
