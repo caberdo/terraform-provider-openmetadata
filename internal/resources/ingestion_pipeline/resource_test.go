@@ -443,3 +443,29 @@ func TestPatchOps(t *testing.T) {
 		})
 	}
 }
+
+func TestDecodeIngestionPipelineAcceptsBothPipelineStatusShapes(t *testing.T) {
+	for _, statuses := range []string{`{}`, `[]`} {
+		raw := []byte(`{
+			"id": "1f6a3a52-8d34-4f4b-9d0f-2f1c1c1c1c1c",
+			"name": "demo",
+			"fullyQualifiedName": "svc.demo",
+			"pipelineType": "metadata",
+			"pipelineStatuses": ` + statuses + `
+		}`)
+
+		pipeline, err := decodeIngestionPipeline(raw)
+		if err != nil {
+			t.Fatalf("decodeIngestionPipeline() with pipelineStatuses %s error = %v", statuses, err)
+		}
+		if pipeline.Name != "demo" || pipeline.FullyQualifiedName == nil || *pipeline.FullyQualifiedName != "svc.demo" {
+			t.Fatalf("decodeIngestionPipeline() = %#v", pipeline)
+		}
+	}
+}
+
+func TestDecodeIngestionPipelineRejectsInvalidJSON(t *testing.T) {
+	if _, err := decodeIngestionPipeline([]byte(`not json`)); err == nil {
+		t.Fatal("decodeIngestionPipeline() accepted invalid JSON")
+	}
+}

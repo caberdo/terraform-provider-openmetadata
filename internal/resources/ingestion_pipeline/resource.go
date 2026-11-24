@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"net/url"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -260,7 +262,7 @@ func (r *ingestionPipelineResource) Create(ctx context.Context, req resource.Cre
 		return
 	}
 
-	created, err := sdk.IngestionPipelines.Create(ctx, body)
+	created, err := createIngestionPipeline(ctx, r.client, body)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Failed to create OpenMetadata ingestion pipeline",
@@ -280,18 +282,12 @@ func (r *ingestionPipelineResource) Read(ctx context.Context, req resource.ReadR
 		return
 	}
 
-	sdk, err := r.client.SDK(ctx)
-	if err != nil {
-		resp.Diagnostics.AddError("Failed to authenticate to OpenMetadata", client.ErrorDetail(err))
-		return
-	}
-
 	reference := state.ID.ValueString()
 	if reference == "" {
 		reference = state.FullyQualifiedName.ValueString()
 	}
 
-	found, err := lookupIngestionPipeline(ctx, sdk, reference)
+	found, err := lookupIngestionPipeline(ctx, r.client, reference)
 	if err != nil {
 		if client.NotFound(err) {
 			resp.State.RemoveResource(ctx)
@@ -316,15 +312,9 @@ func (r *ingestionPipelineResource) Update(ctx context.Context, req resource.Upd
 		return
 	}
 
-	sdk, err := r.client.SDK(ctx)
-	if err != nil {
-		resp.Diagnostics.AddError("Failed to authenticate to OpenMetadata", client.ErrorDetail(err))
-		return
-	}
-
 	ops := patchOps(plan, state)
 	if len(ops) > 0 {
-		updated, err := sdk.IngestionPipelines.Patch(ctx, state.ID.ValueString(), ops)
+		updated, err := patchIngestionPipeline(ctx, r.client, state.ID.ValueString(), ops)
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"Failed to update OpenMetadata ingestion pipeline",
@@ -334,7 +324,7 @@ func (r *ingestionPipelineResource) Update(ctx context.Context, req resource.Upd
 		}
 		apply(updated, &plan)
 	} else {
-		found, err := lookupIngestionPipeline(ctx, sdk, state.ID.ValueString())
+		found, err := lookupIngestionPipeline(ctx, r.client, state.ID.ValueString())
 		if err != nil {
 			resp.Diagnostics.AddError("Failed to read OpenMetadata ingestion pipeline after update", client.ErrorDetail(err))
 			return
@@ -526,17 +516,64 @@ func serviceFQN(value *string, fallback string) *string {
 	return value
 }
 
+const ingestionPipelinePath = "services/ingestionPipelines"
+
+// createIngestionPipeline sends the create request and decodes the response
+// tolerantly, because OpenMetadata 2.0 changed a field the pinned SDK models.
+func createIngestionPipeline(ctx context.Context, c *client.Client, body *ometa.CreateIngestionPipeline) (*ometa.IngestionPipeline, error) {
+	raw, err := c.Do(ctx, http.MethodPost, ingestionPipelinePath, body)
+	if err != nil {
+		return nil, err
+	}
+	return decodeIngestionPipeline(raw)
+}
+
+// patchIngestionPipeline sends the JSON Patch document and decodes the
+// response tolerantly.
+func patchIngestionPipeline(ctx context.Context, c *client.Client, id string, ops []ometa.JSONPatchOp) (*ometa.IngestionPipeline, error) {
+	raw, err := c.Do(ctx, http.MethodPatch, ingestionPipelinePath+"/"+url.PathEscape(id), ops)
+	if err != nil {
+		return nil, err
+	}
+	return decodeIngestionPipeline(raw)
+}
+
 // lookupIngestionPipeline resolves a UUID or a fully qualified name, so
 // import and Read accept either identifier.
-func lookupIngestionPipeline(ctx context.Context, sdk *ometa.Client, reference string) (*ometa.IngestionPipeline, error) {
-	found, err := sdk.IngestionPipelines.GetByID(ctx, reference, nil)
+func lookupIngestionPipeline(ctx context.Context, c *client.Client, reference string) (*ometa.IngestionPipeline, error) {
+	raw, err := c.Do(ctx, http.MethodGet, ingestionPipelinePath+"/"+url.PathEscape(reference), nil)
 	if err == nil {
-		return found, nil
+		return decodeIngestionPipeline(raw)
 	}
 	if !client.NotFound(err) && !client.BadRequest(err) {
 		return nil, err
 	}
-	return sdk.IngestionPipelines.GetByName(ctx, reference, nil)
+	raw, err = c.Do(ctx, http.MethodGet, ingestionPipelinePath+"/name/"+url.PathEscape(reference), nil)
+	if err != nil {
+		return nil, err
+	}
+	return decodeIngestionPipeline(raw)
+}
+
+// decodeIngestionPipeline drops the pipelineStatuses field before decoding the
+// document into the 1.13 SDK model. OpenMetadata 2.0 returns it as an array,
+// while the SDK expects an object; this resource does not expose the field, so
+// its shape is irrelevant to Terraform state.
+func decodeIngestionPipeline(raw []byte) (*ometa.IngestionPipeline, error) {
+	var document map[string]json.RawMessage
+	if err := json.Unmarshal(raw, &document); err != nil {
+		return nil, fmt.Errorf("failed to decode response json: %w", err)
+	}
+	delete(document, "pipelineStatuses")
+	normalized, err := json.Marshal(document)
+	if err != nil {
+		return nil, fmt.Errorf("failed to decode response json: %w", err)
+	}
+	var pipeline ometa.IngestionPipeline
+	if err := json.Unmarshal(normalized, &pipeline); err != nil {
+		return nil, fmt.Errorf("failed to decode response json: %w", err)
+	}
+	return &pipeline, nil
 }
 
 // patchOps builds the JSON Patch document for the fields this resource owns.

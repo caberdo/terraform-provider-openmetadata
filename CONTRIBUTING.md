@@ -44,12 +44,14 @@ make generate
 
 Acceptance tests run against a real OpenMetadata server in Docker Compose. The
 stack is PostgreSQL, Elasticsearch, a one-shot schema migration and the
-OpenMetadata server; the server version is pinned once in
+OpenMetadata server; the supported window is listed in
 [`.github/openmetadata-versions.txt`](.github/openmetadata-versions.txt) and
 passed to the images and to `OPENMETADATA_EXPECT_VERSION`.
 
 ```bash
-make testacc-docker                          # docker compose
+make testacc-docker                          # newest version in the file
+make testacc-docker OPENMETADATA_VERSION=2.0.8
+make testacc-matrix                          # every version in the file
 make testacc-docker COMPOSE=podman-compose   # Podman
 make testacc-down                            # remove the stack and volumes
 ```
@@ -63,7 +65,7 @@ To run from the host against the published port instead of the `test`
 container:
 
 ```bash
-export OPENMETADATA_VERSION=$(tr -d '[:space:]' < .github/openmetadata-versions.txt)
+export OPENMETADATA_VERSION=$(tail -n 1 .github/openmetadata-versions.txt | tr -d '[:space:]')
 docker compose up -d postgresql elasticsearch
 docker compose run --rm migrate
 docker compose up -d openmetadata-server
@@ -83,11 +85,13 @@ not skip once `TF_ACC` is set: an unreachable server or a missing capability is
 an environment failure, not a pass. They must compile under `go vet ./...` even
 when they are not run locally.
 
-**Changing the supported server:** edit
-`.github/openmetadata-versions.txt`, update the `OpenMetadata 1.13` floor in
-`README.md` and `SECURITY.md` if it moved, and run `make testacc-docker`. Never
-hand-edit `docker-compose.yml` image tags or the workflow's expected version;
-both read the pin.
+**Changing the supported window:** edit
+`.github/openmetadata-versions.txt` (the floor first, then the stable releases
+in ascending order), update the `OpenMetadata 1.13` floor in `README.md` and
+`SECURITY.md` if it moved, and run `make testacc-matrix`. The Makefile and CI
+pass the selected entry to `docker-compose.yml` as `OPENMETADATA_VERSION`; only
+update the compose fallbacks when they no longer mirror the newest entry, and
+never hand-edit the workflow's expected version.
 
 ## Pull requests
 
@@ -106,7 +110,7 @@ CI must be green. The required contexts on `main` are:
 | `ci / Lint & Security` | `ci` → `lint` | golangci-lint and gosec |
 | `ci / Test` | `ci` → `test` | build, vet, `go mod tidy`, cross-platform build, example validation and the race-enabled unit suite |
 | `ci / Generate Docs` | `ci` → `docs` | `go generate ./...` leaves `docs/` unchanged |
-| `acceptance / Acceptance` | `acceptance` → roll-up | the compose stack against the pinned OpenMetadata version, plus combined unit and acceptance coverage |
+| `acceptance / Acceptance` | `acceptance` → roll-up | the compose stack against the supported OpenMetadata window, plus combined unit and acceptance coverage |
 
 `main` is protected by the `protect-main` repository ruleset: those four
 contexts, a linear history, no force pushes or deletions, a merge queue and no

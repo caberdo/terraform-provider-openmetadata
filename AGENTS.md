@@ -87,7 +87,8 @@ Rules that keep parallel pull requests mergeable:
 | `make fmt` / `make vet` | formatting and vet |
 | `make validate-examples` | `terraform fmt`/`validate` every example |
 | `make generate` | regenerate `docs/` with `tfplugindocs` |
-| `make testacc-docker` | acceptance suite against OpenMetadata in Docker or Podman |
+| `make testacc-docker` | acceptance suite against the newest OpenMetadata release in Docker or Podman |
+| `make testacc-matrix` | acceptance suite against every version in `.github/openmetadata-versions.txt` |
 | `make testacc-down` | remove the acceptance stack and its volumes |
 | `make release-check` | validate the GoReleaser configuration |
 | `make release-snapshot` | build every release platform into `dist/` |
@@ -111,7 +112,7 @@ To run the suite from the host against the published server port instead of the
 `test` container:
 
 ```sh
-export OPENMETADATA_VERSION=$(tr -d '[:space:]' < .github/openmetadata-versions.txt)
+export OPENMETADATA_VERSION=$(tail -n 1 .github/openmetadata-versions.txt | tr -d '[:space:]')
 podman-compose up -d postgresql elasticsearch
 podman-compose run --rm migrate
 podman-compose up -d openmetadata-server
@@ -125,7 +126,7 @@ TF_ACC=1 OPENMETADATA_HOST=http://127.0.0.1:8585 \
 podman-compose down -v
 ```
 
-Both paths run the same tests and use the same pinned server version.
+Both paths run the same tests and take the server version from the same file.
 
 ## Rules
 

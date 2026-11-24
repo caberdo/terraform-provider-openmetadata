@@ -183,11 +183,12 @@ through `internal/provider`.
 
 The compose stack (`docker-compose.yml`) runs PostgreSQL 15, a single-node
 Elasticsearch, a one-shot `openmetadata-ops.sh migrate`, and the OpenMetadata
-server. The server version is pinned once in
-`.github/openmetadata-versions.txt`; the Makefile and CI pass the same value as
-`OPENMETADATA_VERSION`, and the precheck compares it with `/system/version`.
-There is no version matrix, so one pinned release is the supported acceptance
-target at a time.
+server. The supported versions are listed in
+`.github/openmetadata-versions.txt`; CI runs the whole window and
+`make testacc-matrix` does the same locally, while `OPENMETADATA_VERSION`
+selects one version for the compose stack and the precheck compares it with
+`/system/version`. A pull request runs the floor and the newest release; `main`
+and the merge queue run every entry.
 
 Acceptance tests must not skip once `TF_ACC` is set. A missing capability or an
 unreachable server is an environment failure, not a pass. They must compile

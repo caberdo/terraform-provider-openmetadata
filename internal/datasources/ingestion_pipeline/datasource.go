@@ -2,7 +2,10 @@ package ingestion_pipeline
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"net/http"
+	"net/url"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
@@ -145,18 +148,13 @@ func (d *ingestionPipelineDataSource) Read(ctx context.Context, req datasource.R
 		return
 	}
 
-	sdk, err := d.client.SDK(ctx)
-	if err != nil {
-		resp.Diagnostics.AddError("Failed to authenticate to OpenMetadata", client.ErrorDetail(err))
-		return
-	}
-
 	var found *ometa.IngestionPipeline
+	var err error
 	switch {
 	case !config.ID.IsNull() && config.ID.ValueString() != "":
-		found, err = sdk.IngestionPipelines.GetByID(ctx, config.ID.ValueString(), nil)
+		found, err = lookupIngestionPipeline(ctx, d.client, config.ID.ValueString())
 	case !config.FullyQualifiedName.IsNull() && config.FullyQualifiedName.ValueString() != "":
-		found, err = sdk.IngestionPipelines.GetByName(ctx, config.FullyQualifiedName.ValueString(), nil)
+		found, err = lookupIngestionPipeline(ctx, d.client, config.FullyQualifiedName.ValueString())
 	default:
 		resp.Diagnostics.AddError(
 			"Missing ingestion pipeline identifier",
@@ -175,4 +173,44 @@ func (d *ingestionPipelineDataSource) Read(ctx context.Context, req datasource.R
 
 	apply(found, &config)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &config)...)
+}
+
+const ingestionPipelinePath = "services/ingestionPipelines"
+
+// lookupIngestionPipeline resolves a UUID or a fully qualified name and
+// decodes the response tolerantly, because OpenMetadata 2.0 changed a field
+// the pinned SDK models.
+func lookupIngestionPipeline(ctx context.Context, c *client.Client, reference string) (*ometa.IngestionPipeline, error) {
+	raw, err := c.Do(ctx, http.MethodGet, ingestionPipelinePath+"/"+url.PathEscape(reference), nil)
+	if err == nil {
+		return decodeIngestionPipeline(raw)
+	}
+	if !client.NotFound(err) && !client.BadRequest(err) {
+		return nil, err
+	}
+	raw, err = c.Do(ctx, http.MethodGet, ingestionPipelinePath+"/name/"+url.PathEscape(reference), nil)
+	if err != nil {
+		return nil, err
+	}
+	return decodeIngestionPipeline(raw)
+}
+
+// decodeIngestionPipeline drops the pipelineStatuses field before decoding the
+// document into the 1.13 SDK model. OpenMetadata 2.0 returns it as an array,
+// while the SDK expects an object; this data source does not expose the field.
+func decodeIngestionPipeline(raw []byte) (*ometa.IngestionPipeline, error) {
+	var document map[string]json.RawMessage
+	if err := json.Unmarshal(raw, &document); err != nil {
+		return nil, fmt.Errorf("failed to decode response json: %w", err)
+	}
+	delete(document, "pipelineStatuses")
+	normalized, err := json.Marshal(document)
+	if err != nil {
+		return nil, fmt.Errorf("failed to decode response json: %w", err)
+	}
+	var pipeline ometa.IngestionPipeline
+	if err := json.Unmarshal(normalized, &pipeline); err != nil {
+		return nil, fmt.Errorf("failed to decode response json: %w", err)
+	}
+	return &pipeline, nil
 }

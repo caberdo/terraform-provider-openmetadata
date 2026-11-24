@@ -38,8 +38,8 @@ jobs:
       provider-display: OpenMetadata
       versions-file: .github/openmetadata-versions.txt
       upstream: open-metadata/OpenMetadata
-      # Stable releases are tagged `2.0.8-release` while the matrix holds bare
-      # `1.13.6`: no `v` prefix, a literal `-release` suffix. Without stripping
+      # Stable releases are tagged `2.0.9-release` while the matrix holds bare
+      # `2.0.9`: no `v` prefix, a literal `-release` suffix. Without stripping
       # it the comparison can never match and the canary asks for an image tag
       # that does not exist. `2.1.0-rc2-release` is a prerelease and is skipped.
       strip-v: false

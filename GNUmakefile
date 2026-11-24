@@ -2,11 +2,15 @@ default: build
 
 BINARY_NAME=terraform-provider-openmetadata
 VERSION=$(shell git describe --tags --always --dirty 2>/dev/null || echo "dev")
-# OpenMetadata server version the acceptance tests run against. The CI workflow
-# reads .github/openmetadata-versions.txt directly and docker-compose.yml takes
-# the same value through OPENMETADATA_VERSION, so bump the file, not this
-# variable, when moving to a new release.
-OPENMETADATA_VERSION ?= $(shell tr -d '[:space:]' < .github/openmetadata-versions.txt)
+# Supported OpenMetadata server versions, ordered ascending: the first entry is
+# the supported floor and the last is the newest release. CI reads
+# .github/openmetadata-versions.txt directly and docker-compose.yml takes the
+# selected value through OPENMETADATA_VERSION, so bump the file, not these
+# variables, when moving to a new release. Override the window for a quick local
+# check: OPENMETADATA_VERSIONS="2.0.8 2.0.9" make testacc-matrix
+OPENMETADATA_VERSIONS ?= $(shell sed -e 's/\#.*//' -e 's/[[:space:]]//g' .github/openmetadata-versions.txt | grep -v '^$$')
+# The version a plain `make testacc-docker` runs: the newest in the file.
+OPENMETADATA_VERSION ?= $(lastword $(OPENMETADATA_VERSIONS))
 # Compose implementation. The stack depends on health- and completion-based
 # conditions, which need Docker Compose v2 or podman-compose 1.6+. Override with
 # `make testacc-docker COMPOSE=podman-compose` when Docker is unavailable.
@@ -84,9 +88,35 @@ validate-examples:
 testacc:
 	TF_ACC=1 go test -v -timeout 30m ./internal/...
 
-# Runs the acceptance suite in the compose network, against the pinned server.
+# Runs the acceptance suite in the compose network, against the newest version
+# in the supported window unless OPENMETADATA_VERSION names another one.
 testacc-docker:
 	OPENMETADATA_VERSION=$(OPENMETADATA_VERSION) $(COMPOSE) run --rm test
+
+# Runs the acceptance suite against every version in the supported window, the
+# way CI does. Each version gets its own compose project so a failed leg cannot
+# leave containers, volumes or port bindings behind for the next one; the
+# overall exit status is non-zero when any version failed.
+testacc-matrix:
+	@test -n "$(OPENMETADATA_VERSIONS)" || { \
+		echo "OPENMETADATA_VERSIONS is empty; check .github/openmetadata-versions.txt" >&2; \
+		exit 1; \
+	}
+	@results=$$(mktemp); status=0; \
+	for v in $(OPENMETADATA_VERSIONS); do \
+		project=$$(echo "$$v" | tr '.' '-'); \
+		echo "==> Acceptance tests against OpenMetadata $$v"; \
+		if COMPOSE_PROJECT_NAME=openmetadata-acc-$$project \
+			$(MAKE) --no-print-directory testacc-docker OPENMETADATA_VERSION=$$v; then \
+			echo "PASS OpenMetadata $$v" >> "$$results"; \
+		else \
+			echo "FAIL OpenMetadata $$v" >> "$$results"; status=1; \
+		fi; \
+		COMPOSE_PROJECT_NAME=openmetadata-acc-$$project OPENMETADATA_VERSION=$$v \
+			$(COMPOSE) down -v >/dev/null 2>&1 || true; \
+	done; \
+	echo; echo "==> Acceptance matrix summary"; cat "$$results"; rm -f "$$results"; \
+	exit $$status
 
 testacc-down:
 	OPENMETADATA_VERSION=$(OPENMETADATA_VERSION) $(COMPOSE) down -v
@@ -102,4 +132,4 @@ release-check:
 release-snapshot:
 	goreleaser release --snapshot --clean --skip=publish,sign --config .github/goreleaser.yml
 
-.PHONY: default build test test-race coverage coverage-html coverage-merge coverage-readme coverage-readme-check coverage-gate lint lint-fix fmt vet generate validate-examples testacc testacc-docker testacc-down install release-check release-snapshot
+.PHONY: default build test test-race coverage coverage-html coverage-merge coverage-readme coverage-readme-check coverage-gate lint lint-fix fmt vet generate validate-examples testacc testacc-docker testacc-matrix testacc-down install release-check release-snapshot
