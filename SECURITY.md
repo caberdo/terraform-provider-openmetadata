@@ -3,8 +3,7 @@
 ## Supported versions
 
 Security fixes are issued for the latest published provider release. The
-provider targets OpenMetadata 1.13 and later; the version the acceptance suite
-runs against is pinned in
+provider targets OpenMetadata 1.13 and later; the acceptance window is listed in
 [`.github/openmetadata-versions.txt`](.github/openmetadata-versions.txt).
 
 ## Threat model

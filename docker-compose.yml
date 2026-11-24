@@ -1,9 +1,10 @@
 # Acceptance-test stack: a real OpenMetadata server with the database and search
-# engine it needs. The server version is pinned in
-# .github/openmetadata-versions.txt; the Makefile and CI export it as
-# OPENMETADATA_VERSION so image tags and the expected /system/version agree.
+# engine it needs. The supported server versions are listed in
+# .github/openmetadata-versions.txt; the Makefile and CI export the selected one
+# as OPENMETADATA_VERSION so image tags and the expected /system/version agree.
+# The fallbacks below mirror the newest entry in that file.
 #
-# Runs in the compose network, against the pinned server. Docker Compose v2 or
+# Runs in the compose network, against the selected server. Docker Compose v2 or
 # Podman with podman-compose 1.6+ is required for the health- and
 # completion-based dependencies.
 #
@@ -79,7 +80,7 @@ services:
 
   # One-shot schema migration. The server refuses to start until this exits 0.
   migrate:
-    image: docker.getcollate.io/openmetadata/server:${OPENMETADATA_VERSION:-1.13.6}
+    image: docker.getcollate.io/openmetadata/server:${OPENMETADATA_VERSION:-2.0.9}
     command: ["./bootstrap/openmetadata-ops.sh", "migrate"]
     environment: *openmetadata-environment
     depends_on:
@@ -89,7 +90,7 @@ services:
         condition: service_healthy
 
   openmetadata-server:
-    image: docker.getcollate.io/openmetadata/server:${OPENMETADATA_VERSION:-1.13.6}
+    image: docker.getcollate.io/openmetadata/server:${OPENMETADATA_VERSION:-2.0.9}
     environment: *openmetadata-environment
     ports:
       - "8585:8585"
@@ -121,7 +122,7 @@ services:
       OPENMETADATA_HOST: http://openmetadata-server:8585
       OPENMETADATA_USERNAME: admin@open-metadata.org
       OPENMETADATA_PASSWORD: admin
-      OPENMETADATA_EXPECT_VERSION: ${OPENMETADATA_VERSION:-1.13.6}
+      OPENMETADATA_EXPECT_VERSION: ${OPENMETADATA_VERSION:-2.0.9}
     command:
       - bash
       - -c

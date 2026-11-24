@@ -87,17 +87,24 @@ during `terraform validate` or `terraform plan`; the login exchange happens on t
 | | |
 |---|---|
 | Terraform | 1.9 or later (plugin protocol 6.0); also available for [OpenTofu](https://search.opentofu.org/provider/caberdo/openmetadata) |
-| OpenMetadata | **1.13** or later. The acceptance suite runs against the release pinned in [`.github/openmetadata-versions.txt`](.github/openmetadata-versions.txt) — currently `1.13.6` |
+| OpenMetadata | **1.13** or later. The acceptance window lives in [`.github/openmetadata-versions.txt`](.github/openmetadata-versions.txt) — currently `1.13.6`, `2.0.5`, `2.0.6`, `2.0.7`, `2.0.8` and `2.0.9` |
 | Go (to build from source) | 1.27.4 |
 
 ### Supported OpenMetadata versions
 
-There is no version matrix: one pinned release is the supported acceptance target at a time. The
-compose stack takes its image tag from `OPENMETADATA_VERSION`, which defaults to the contents of
-`.github/openmetadata-versions.txt`, and the acceptance precheck compares the server's
-`/system/version` with it before running. A server the suite has not been pinned against is
-therefore untested rather than rejected: the provider does not enforce a server version up front
-and surfaces the server's own error when an endpoint it needs is missing.
+- The minimum supported server is **OpenMetadata 1.13.6**. One provider build supports 1.13.6 and
+  newer; a server outside the window is untested rather than rejected, because the provider does
+  not enforce a server version up front and surfaces the server's own error when an endpoint it
+  needs is missing.
+- [`.github/openmetadata-versions.txt`](.github/openmetadata-versions.txt) is the single source of
+  truth for the CI matrix and `make testacc-matrix`. It starts at the declared floor and lists the
+  last stable releases — currently `1.13.6`, `2.0.5`, `2.0.6`, `2.0.7`, `2.0.8` and `2.0.9`.
+  A pull request runs the floor and the newest release; `main` and the merge queue run the whole
+  window. A weekly workflow opens an issue when the window goes stale.
+- A plain `make testacc-docker` runs the newest version in the file; set
+  `OPENMETADATA_VERSION=2.0.8` to pin another one for a single run.
+- The acceptance precheck compares the server's `/system/version` with the selected version before
+  running, so a stale image fails at the precheck rather than in a confusing capability error.
 
 ## Repository layout
 
@@ -212,7 +219,8 @@ re-checks the same artifacts.
 | `make coverage-html` | The coverage profile as a browsable HTML report |
 | `make coverage-gate` | Fails below the module floor or a per-package floor |
 | `make coverage-readme-check` | Fails when the README coverage block has drifted from the baseline |
-| `make testacc-docker` | The acceptance suite against OpenMetadata in the compose stack |
+| `make testacc-docker` | The acceptance suite against the newest OpenMetadata release in the compose stack |
+| `make testacc-matrix` | The acceptance suite against every version in the supported window |
 | `make coverage-merge` | Merges the unit and acceptance profiles into one statement-coverage table |
 
 The suite is layered: pure unit tests cover provider configuration, the login exchange, token
@@ -252,13 +260,14 @@ dependencies). With Podman, point Docker Compose at the Podman socket and overri
 ```bash
 export DOCKER_HOST="unix://$(podman machine inspect --format '{{.ConnectionInfo.PodmanSocket.Path}}')"
 make testacc-docker COMPOSE=podman-compose   # postgres, Elasticsearch, migrate, server, then the suite
+make testacc-matrix COMPOSE=podman-compose   # the same suite for every supported version
 make testacc-down COMPOSE=podman-compose     # remove the stack and its volumes
 ```
 
-The compose stack pins the server through `OPENMETADATA_VERSION`, which defaults to the contents of
-`.github/openmetadata-versions.txt`. The suite asserts the server's `/system/version` matches that
-pin before running, so a stale image fails at the precheck rather than in a confusing capability
-error.
+The compose stack selects the server through `OPENMETADATA_VERSION`, which defaults to the newest
+entry in `.github/openmetadata-versions.txt`; `make testacc-matrix` walks the whole file. The suite
+asserts the server's `/system/version` matches that version before running, so a stale image fails
+at the precheck rather than in a confusing capability error.
 
 To use a local build with Terraform, add to `~/.terraformrc`:
 
@@ -306,8 +315,8 @@ Install Docker Compose v2, or use Podman: `make testacc-docker COMPOSE=podman-co
 
 **The acceptance precheck fails on a version mismatch.**
 The suite compares the server's `/system/version` with `OPENMETADATA_EXPECT_VERSION`, which the
-compose file sets from `.github/openmetadata-versions.txt`. Rebuild the stack after changing the
-pin instead of mixing a stale image with a new expectation.
+compose file sets from the selected entry in `.github/openmetadata-versions.txt`. Rebuild the stack
+after changing the version instead of mixing a stale image with a new expectation.
 
 **CI fails with docs drift.**
 Run `make generate` and commit the result. `docs/` is generated from `examples/` and `templates/`

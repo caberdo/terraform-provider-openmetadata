@@ -103,6 +103,11 @@ jobs:
       version-env: OPENMETADATA_VERSION
       # `expect-version-env` stays empty: docker-compose.yml passes
       # OPENMETADATA_EXPECT_VERSION to the test container from the same value.
+      # One compose project per version so a matrix leg cannot touch another
+      # leg's containers or volumes. The version dots are not legal in a compose
+      # project name, so the kit rewrites them to dashes.
+      compose-project-prefix: openmetadata
+      compose-dot-to-dash: true
       # Elasticsearch refuses to start at the distribution default for
       # vm.max_map_count.
       raise-max-map-count: true
